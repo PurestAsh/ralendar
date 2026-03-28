@@ -1,5 +1,11 @@
-#[derive(Debug,Clone)]
-pub enum Message{
+#[derive(Debug, Clone)]
+pub enum Message {
     WindowEvent,
-    ToggleSideBar
+    SideBarMsg(SideBarMsg),
+}
+
+#[derive(Debug, Clone)]
+pub enum SideBarMsg {
+    Toggle,
+    Animation,
 }

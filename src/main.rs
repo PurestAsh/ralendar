@@ -1,8 +1,10 @@
+use crate::component::side_bar;
 use crate::state::SideBarState;
 use crate::{message::Message, state::ApplicationState, ui::main_page};
 use iced::{Element, Settings, Task, Theme, application};
 use iced::{Subscription, window};
 
+mod component;
 mod message;
 mod state;
 mod style;
@@ -36,7 +38,7 @@ fn theme(state: &ApplicationState) -> Option<Theme> {
 fn boot() -> (ApplicationState, Task<Message>) {
     (
         ApplicationState {
-            sidebar_state: SideBarState { expand: true },
+            sidebar_state: SideBarState::default(),
         },
         Task::none(),
     )
@@ -48,13 +50,9 @@ fn view<'a>(state: &'a ApplicationState) -> Element<'a, Message> {
 
 fn update(state: &mut ApplicationState, msg: Message) -> Task<Message> {
     match msg {
-        Message::ToggleSideBar => {
-            println!("msg!!!");
-            state.sidebar_state.expand = !state.sidebar_state.expand;
-        }
-        _ => {}
+        Message::SideBarMsg(msg) => side_bar::update(state, msg),
+        _ => Task::none(),
     }
-    Task::none()
 }
 
 fn subscription(state: &ApplicationState) -> Subscription<Message> {
