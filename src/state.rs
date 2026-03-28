@@ -1,23 +1,17 @@
 use std::time::Duration;
 
 use iced::Animation;
+use iced::animation::Easing;
 
+use crate::component::side_bar::SideBarState;
 pub struct ApplicationState {
     pub sidebar_state: SideBarState,
 }
 
-pub struct SideBarState {
-    pub animation: Animation<bool>,
-    pub width: f32,
-    pub expand: bool,
-}
-
-impl Default for SideBarState {
+impl Default for ApplicationState {
     fn default() -> Self {
         Self {
-            animation: Animation::new(true).duration(Duration::from_secs(1)),
-            width: 250.,
-            expand: true,
+            sidebar_state: SideBarState::default(),
         }
     }
 }

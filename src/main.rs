@@ -1,5 +1,4 @@
 use crate::component::side_bar;
-use crate::state::SideBarState;
 use crate::{message::Message, state::ApplicationState, ui::main_page};
 use iced::{Element, Settings, Task, Theme, application};
 use iced::{Subscription, window};
@@ -36,12 +35,7 @@ fn theme(state: &ApplicationState) -> Option<Theme> {
 }
 
 fn boot() -> (ApplicationState, Task<Message>) {
-    (
-        ApplicationState {
-            sidebar_state: SideBarState::default(),
-        },
-        Task::none(),
-    )
+    (ApplicationState::default(), Task::none())
 }
 
 fn view<'a>(state: &'a ApplicationState) -> Element<'a, Message> {
