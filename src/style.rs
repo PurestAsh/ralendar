@@ -2,9 +2,13 @@ use iced::{Background, Border, Color, color, widget::container::Style};
 
 pub fn with_border(background: impl Into<Background>) -> Style {
     Style {
-        border: Border::default().width(2).color(Color::WHITE),
+        border: Border::default().width(2).color(Color::BLACK),
         ..Style::default().background(background)
     }
+}
+
+pub fn background(background: impl Into<Background>) -> Style {
+    Style::default().background(background)
 }
 
 pub fn blue() -> Color {
@@ -15,8 +19,13 @@ pub fn light_blue() -> Color {
     color!(229, 244, 255)
 }
 
+//背景色
 pub fn light_gray() -> Color {
     color!(241, 243, 245)
+}
+
+pub fn light_gray_trans() -> Color {
+    color!(241, 243, 245, 0.5)
 }
 
 pub fn green() -> Color {
@@ -27,7 +36,7 @@ pub fn orange() -> Color {
 }
 
 pub fn light_orange() -> Color {
-    color!(96, 40, 30)
+    color!(247, 96, 69)
 }
 pub fn purple() -> Color {
     Color::from_rgba(0.3, 0.5, 0.9, 0.8)

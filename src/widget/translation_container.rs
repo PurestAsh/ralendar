@@ -1,4 +1,3 @@
-use iced::Rectangle;
 use iced::advanced::layout;
 use iced::advanced::layout::Node;
 use iced::advanced::widget::tree;
@@ -8,12 +7,12 @@ use iced::widget::container::Catalog as ContainerCatalog;
 use iced::{Element, advanced::Widget};
 use iced::{Length, Size, Vector, advanced};
 
-pub struct TrContainer<'a, Message, Theme, Renderer> {
+pub struct TranslationContainer<'a, Message, Theme, Renderer> {
     content: Element<'a, Message, Theme, Renderer>,
-    width: f32,
+    offset: f32,
 }
 
-impl<'a, Message, Theme, Renderer> From<TrContainer<'a, Message, Theme, Renderer>>
+impl<'a, Message, Theme, Renderer> From<TranslationContainer<'a, Message, Theme, Renderer>>
     for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a,
@@ -21,32 +20,32 @@ where
     Renderer: advanced::Renderer + 'a,
 {
     fn from(
-        container: TrContainer<'a, Message, Theme, Renderer>,
+        container: TranslationContainer<'a, Message, Theme, Renderer>,
     ) -> Element<'a, Message, Theme, Renderer> {
         Element::new(container)
     }
 }
 
-impl<'a, Message, Theme, Renderer> TrContainer<'a, Message, Theme, Renderer>
+impl<'a, Message, Theme, Renderer> TranslationContainer<'a, Message, Theme, Renderer>
 where
     Theme: ContainerCatalog,
     Renderer: advanced::Renderer,
 {
     pub fn new(content: impl Into<Element<'a, Message, Theme, Renderer>>) -> Self {
-        TrContainer {
+        TranslationContainer {
             content: content.into(),
-            width: 0.,
+            offset: 0.,
         }
     }
 
-    pub fn width(mut self, width: f32) -> Self {
-        self.width = width;
+    pub fn offset(mut self, offset: f32) -> Self {
+        self.offset = offset;
         self
     }
 }
 
 impl<Message, Theme, Renderer> Widget<Message, Theme, Renderer>
-    for TrContainer<'_, Message, Theme, Renderer>
+    for TranslationContainer<'_, Message, Theme, Renderer>
 where
     Theme: ContainerCatalog,
     Renderer: advanced::Renderer,
@@ -75,7 +74,7 @@ where
         cursor: iced::advanced::mouse::Cursor,
         viewport: &iced::Rectangle,
     ) {
-        renderer.with_translation(Vector::new(self.width - 250., 0.), |renderer| {
+        renderer.with_translation(Vector::new(self.offset - 250., 0.), |renderer| {
             self.content
                 .as_widget()
                 .draw(tree, renderer, theme, style, layout, cursor, viewport);

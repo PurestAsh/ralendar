@@ -30,7 +30,7 @@ fn main() {
         .unwrap();
 }
 
-fn theme(state: &ApplicationState) -> Option<Theme> {
+fn theme(_state: &ApplicationState) -> Option<Theme> {
     Some(Theme::Light)
 }
 
@@ -49,7 +49,7 @@ fn update(state: &mut ApplicationState, msg: Message) -> Task<Message> {
     }
 }
 
-fn subscription(state: &ApplicationState) -> Subscription<Message> {
+fn subscription(_state: &ApplicationState) -> Subscription<Message> {
     window::events().map(|(id, event)| {
         println!("id:{},event:{:?}", id, event);
         Message::WindowEvent
