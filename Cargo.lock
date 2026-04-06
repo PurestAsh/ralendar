@@ -2422,6 +2422,7 @@ name = "ralendar"
 version = "0.1.0"
 dependencies = [
  "iced",
+ "lilt",
 ]
 
 [[package]]

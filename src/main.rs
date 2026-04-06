@@ -1,4 +1,4 @@
-use crate::component::side_bar;
+use crate::component::{calendar, side_bar};
 use crate::{message::Message, state::ApplicationState, ui::main_page};
 use iced::{Element, Settings, Task, Theme, application};
 use iced::{Subscription, window};
@@ -45,6 +45,7 @@ fn view<'a>(state: &'a ApplicationState) -> Element<'a, Message> {
 fn update(state: &mut ApplicationState, msg: Message) -> Task<Message> {
     match msg {
         Message::SideBarMsg(msg) => side_bar::update(state, msg),
+        Message::ContentMsg(msg) => calendar::update(state, msg),
         _ => Task::none(),
     }
 }
