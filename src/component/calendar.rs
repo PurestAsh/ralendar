@@ -1,13 +1,13 @@
 use std::time::{Duration, Instant};
 
 use crate::message::{ContentMsg, DateType};
-use crate::style::{background, light_gray, purple};
+use crate::style::{background, blue, grau, light_gray, orange, purple};
 use crate::{message::Message, state::ApplicationState};
 use iced::alignment::Vertical;
 use iced::widget::button::Style as ButtonStyle;
 use iced::widget::container::Style as ContainerStyle;
 use iced::widget::space::horizontal;
-use iced::widget::{Space, button, column, container, row, stack, text};
+use iced::widget::{Grid, Space, button, column, container, row, stack, text};
 use iced::{Alignment, Animation, Border, Color, Element, Length, Padding, Task};
 use lilt::Easing;
 
@@ -36,24 +36,44 @@ pub fn view<'a>(state: &ApplicationState) -> Element<'a, Message> {
     container(
         row![
             column![
-                container(Space::new())
-                    .width(Length::Fill)
-                    .height(Length::Fill)
+                Space::new().height(91),
+                container(column![text("1"), text("周")].align_x(Alignment::Center))
+                    .align_top(Length::FillPortion(1))
+                    .align_x(Alignment::Center)
+                    .width(Length::Fill),
+                container(column![text("2"), text("周")].align_x(Alignment::Center))
+                    .align_top(Length::FillPortion(1))
+                    .align_x(Alignment::Center)
+                    .width(Length::Fill),
+                container(column![text("3"), text("周")].align_x(Alignment::Center))
+                    .align_top(Length::FillPortion(1))
+                    .align_x(Alignment::Center)
+                    .width(Length::Fill),
+                container(column![text("4"), text("周")].align_x(Alignment::Center))
+                    .align_top(Length::FillPortion(1))
+                    .align_x(Alignment::Center)
+                    .width(Length::Fill),
+                container(column![text("5"), text("周")].align_x(Alignment::Center))
+                    .align_top(Length::FillPortion(1))
+                    .align_x(Alignment::Center)
+                    .width(Length::Fill),
+                Space::new().height(15)
             ]
-            .width(10)
+            .width(15)
             .height(Length::Fill),
             column![
                 container(header(state))
                     .width(Length::Fill)
                     .height(70)
                     .padding([20, 0]),
-                container(Space::new().width(Length::Fill).height(Length::Fill))
-                    .style(|_theme| { background(Color::BLACK) })
+                container(main_content(state))
+                    .width(Length::Fill)
+                    .height(Length::Fill) // .style(|_theme| { background(Color::BLACK) })
             ]
             .padding(Padding::ZERO.bottom(10))
             .width(Length::Fill)
             .height(Length::Fill),
-            Space::new().width(10).height(Length::Fill)
+            Space::new().width(15).height(Length::Fill)
         ]
         .width(Length::Fill)
         .height(Length::Fill),
@@ -151,6 +171,114 @@ pub fn header<'a>(state: &ApplicationState) -> Element<'a, Message> {
         .width(Length::Fill)
         .height(Length::Fill),
     )
+    .into()
+}
+
+pub fn main_content<'a>(_state: &ApplicationState) -> Element<'a, Message> {
+    let mut cells = Vec::new();
+    for y in 0..=4 {
+        for x in 0..=5 {
+            if y % 2 == 0 && x % 2 != 0 {
+                cells.push(
+                    container(
+                        column![
+                            row!["1", horizontal(), "十一"]
+                                .width(Length::Fill)
+                                .height(15),
+                            container(
+                                row![
+                                    container(Space::new()).height(Length::Fill).width(2).style(
+                                        |_thmme| {
+                                            ContainerStyle {
+                                                background: Some(Color::BLACK.into()),
+                                                ..Default::default()
+                                            }
+                                        }
+                                    ),
+                                    horizontal(),
+                                    "元宵节",
+                                ]
+                                .width(Length::Fill)
+                                .height(20)
+                            )
+                            .style(|_theme| {
+                                ContainerStyle {
+                                    background: Some(grau().into()),
+                                    ..Default::default()
+                                }
+                            }),
+                        ]
+                        .width(Length::Fill)
+                        .height(Length::Fill),
+                    )
+                    .into(),
+                );
+            } else {
+                cells.push(
+                    container(Space::new())
+                        .style(|_theme| ContainerStyle {
+                            background: Some(orange().into()),
+                            ..Default::default()
+                        })
+                        .into(),
+                )
+            };
+        }
+    }
+
+    column![
+        row![
+            container("日")
+                .width(Length::Fill)
+                .height(Length::FillPortion(1))
+                .align_x(Alignment::Center)
+                .align_y(Alignment::Center),
+            container("一")
+                .width(Length::Fill)
+                .height(Length::FillPortion(1))
+                .align_x(Alignment::Center)
+                .align_y(Alignment::Center),
+            container("二")
+                .width(Length::Fill)
+                .height(Length::FillPortion(1))
+                .align_x(Alignment::Center)
+                .align_y(Alignment::Center),
+            container("三")
+                .width(Length::Fill)
+                .height(Length::FillPortion(1))
+                .align_x(Alignment::Center)
+                .align_y(Alignment::Center),
+            container("四")
+                .width(Length::Fill)
+                .height(Length::FillPortion(1))
+                .align_x(Alignment::Center)
+                .align_y(Alignment::Center),
+            container("五")
+                .width(Length::Fill)
+                .height(Length::FillPortion(1))
+                .align_x(Alignment::Center)
+                .align_y(Alignment::Center),
+            container("六")
+                .width(Length::Fill)
+                .height(Length::FillPortion(1))
+                .align_x(Alignment::Center)
+                .align_y(Alignment::Center),
+        ]
+        .width(Length::Fill)
+        .height(25)
+        .align_y(Alignment::Center)
+        .padding(Padding::ZERO.bottom(5)),
+        container(Space::new())
+            .width(Length::Fill)
+            .height(1)
+            .style(|_theme| {
+                ContainerStyle {
+                    background: Some(blue().into()),
+                    ..Default::default()
+                }
+            }),
+        Grid::from_vec(cells).height(Length::Fill).columns(7)
+    ]
     .into()
 }
 
