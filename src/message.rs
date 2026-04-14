@@ -5,6 +5,7 @@ pub enum Message {
     WindowEvent,
     SideBarMsg(SideBarMsg),
     ContentMsg(ContentMsg),
+    StateInitialFinished,
 }
 
 #[derive(Debug, Clone)]

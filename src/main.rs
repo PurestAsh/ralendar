@@ -3,7 +3,9 @@ use crate::{message::Message, state::ApplicationState, ui::main_page};
 use iced::{Element, Settings, Task, Theme, application};
 use iced::{Subscription, window};
 
+mod backend;
 mod component;
+mod holiday_cn;
 mod message;
 mod state;
 mod style;
@@ -35,7 +37,10 @@ fn theme(_state: &ApplicationState) -> Option<Theme> {
 }
 
 fn boot() -> (ApplicationState, Task<Message>) {
-    (ApplicationState::default(), Task::none())
+    (
+        ApplicationState::default(),
+        Task::done(Message::StateInitialFinished),
+    )
 }
 
 fn view<'a>(state: &'a ApplicationState) -> Element<'a, Message> {
@@ -46,6 +51,10 @@ fn update(state: &mut ApplicationState, msg: Message) -> Task<Message> {
     match msg {
         Message::SideBarMsg(msg) => side_bar::update(state, msg),
         Message::ContentMsg(msg) => calendar::update(state, msg),
+        Message::StateInitialFinished => {
+            state.calendar.get_month(backend::MonthOp::Current);
+            Task::none()
+        }
         _ => Task::none(),
     }
 }

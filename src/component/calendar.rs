@@ -1,5 +1,7 @@
 use std::time::{Duration, Instant};
 
+use crate::backend::MonthOp;
+use crate::component::calendar;
 use crate::message::{ContentMsg, DateType};
 use crate::style::{background, blue, grau, light_gray, orange, purple};
 use crate::{message::Message, state::ApplicationState};
@@ -174,56 +176,50 @@ pub fn header<'a>(state: &ApplicationState) -> Element<'a, Message> {
     .into()
 }
 
-pub fn main_content<'a>(_state: &ApplicationState) -> Element<'a, Message> {
+pub fn main_content<'a>(state: &ApplicationState) -> Element<'a, Message> {
     let mut cells = Vec::new();
-    for y in 0..=4 {
-        for x in 0..=5 {
-            if y % 2 == 0 && x % 2 != 0 {
-                cells.push(
+    let data = state.calendar.get_cache();
+    if data.is_none() {
+        return "".into();
+    }
+    let mut iter = data.unwrap().iter();
+    for x in 0..42 {
+        let day = iter.next().unwrap();
+        cells.push(
+            container(
+                column![
+                    row![text(format!("{}", day.day())), horizontal(), "十一"]
+                        .width(Length::Fill)
+                        .height(15),
                     container(
-                        column![
-                            row!["1", horizontal(), "十一"]
-                                .width(Length::Fill)
-                                .height(15),
-                            container(
-                                row![
-                                    container(Space::new()).height(Length::Fill).width(2).style(
-                                        |_thmme| {
-                                            ContainerStyle {
-                                                background: Some(Color::BLACK.into()),
-                                                ..Default::default()
-                                            }
-                                        }
-                                    ),
-                                    horizontal(),
-                                    "元宵节",
-                                ]
-                                .width(Length::Fill)
-                                .height(20)
-                            )
-                            .style(|_theme| {
-                                ContainerStyle {
-                                    background: Some(grau().into()),
-                                    ..Default::default()
-                                }
-                            }),
+                        row![
+                            container(Space::new())
+                                .height(Length::Fill)
+                                .width(2)
+                                .style(|_thmme| {
+                                    ContainerStyle {
+                                        background: Some(Color::BLACK.into()),
+                                        ..Default::default()
+                                    }
+                                }),
+                            horizontal(),
+                            text(format!("{}", day.event())),
                         ]
                         .width(Length::Fill)
-                        .height(Length::Fill),
+                        .height(20)
                     )
-                    .into(),
-                );
-            } else {
-                cells.push(
-                    container(Space::new())
-                        .style(|_theme| ContainerStyle {
-                            background: Some(orange().into()),
+                    .style(|_theme| {
+                        ContainerStyle {
+                            background: Some(grau().into()),
                             ..Default::default()
-                        })
-                        .into(),
-                )
-            };
-        }
+                        }
+                    }),
+                ]
+                .width(Length::Fill)
+                .height(Length::Fill),
+            )
+            .into(),
+        );
     }
 
     column![
