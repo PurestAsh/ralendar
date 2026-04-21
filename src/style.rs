@@ -19,6 +19,14 @@ pub fn light_blue() -> Color {
     color!(229, 244, 255)
 }
 
+pub fn black() -> Color {
+    color!(0, 0, 0)
+}
+
+pub fn deep_gray() -> Color {
+    color!(210, 210, 210)
+}
+
 //背景色
 pub fn light_gray() -> Color {
     color!(241, 243, 245)

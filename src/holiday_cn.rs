@@ -21,25 +21,7 @@ pub const YEAR_2026: &str = include_str!("../holiday-cn/2026.json");
 pub const YEAR_2027: &str = include_str!("../holiday-cn/2027.json");
 
 pub const ALL_YEAR: &[&str] = &[
-    YEAR_2007,
-    YEAR_2008,
-    YEAR_2009,
-    YEAR_2010,
-    YEAR_2011,
-    YEAR_2012,
-    YEAR_2013,
-    YEAR_2014,
-    YEAR_2015,
-    YEAR_2016,
-    YEAR_2017,
-    YEAR_2018,
-    YEAR_2019,
-    YEAR_2020,
-    YEAR_2021,
-    YEAR_2022,
-    YEAR_2023,
-    YEAR_2024,
-    YEAR_2025,
-    YEAR_2026,
-    YEAR_2027,
+    YEAR_2007, YEAR_2008, YEAR_2009, YEAR_2010, YEAR_2011, YEAR_2012, YEAR_2013, YEAR_2014,
+    YEAR_2015, YEAR_2016, YEAR_2017, YEAR_2018, YEAR_2019, YEAR_2020, YEAR_2021, YEAR_2022,
+    YEAR_2023, YEAR_2024, YEAR_2025, YEAR_2026, YEAR_2027,
 ];

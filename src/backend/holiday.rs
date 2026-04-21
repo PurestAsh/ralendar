@@ -31,7 +31,6 @@ impl Holidays {
                 let name = day_json.get("name").unwrap().as_str().unwrap().to_owned();
 
                 let date = day_json.get("date").unwrap().as_str().unwrap();
-            
 
                 let format = format_description::parse("[year]-[month]-[day]").unwrap();
 

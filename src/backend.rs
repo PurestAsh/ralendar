@@ -1,8 +1,10 @@
-use std::{collections::HashMap, f32::consts::E, fmt};
+use std::{collections::HashMap, fmt};
 
 use time::{Date, Duration, Month, OffsetDateTime, UtcOffset};
+use tyme4rs::tyme::solar::SolarDay;
 
 use crate::backend::holiday::Holidays;
+use crate::util::ChineseDayConverter;
 mod holiday;
 pub struct Calendar {
     date_status: OffsetDateTime,
@@ -28,9 +30,12 @@ impl CacheKey {
     }
 }
 
+/// 表示一天的结构体，包含日期和当天的事件
+/// 还包括农历
 pub struct Day {
     date: Date,
     event: Vec<String>,
+    lunar: String,
 }
 impl Day {
     pub fn day(&self) -> u8 {
@@ -42,18 +47,23 @@ impl Day {
             acc
         })
     }
+
+    pub fn lunar(&self) -> &String {
+        &self.lunar
+    }
 }
 
 impl fmt::Display for Day {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "({}, {})",
+            "({}, {}, {})",
             self.date,
             self.event.iter().fold(String::new(), |mut a, x| {
                 a.insert_str(a.len(), x);
                 a
-            })
+            }),
+            self.lunar
         )
     }
 }
@@ -129,9 +139,18 @@ impl Calendar {
             let time = first_day.checked_add(Duration::days(index)).unwrap();
             let date = time.date();
             let event = self.get_holiday(date);
+            let solar = SolarDay::from_ymd(
+                date.year() as isize,
+                date.month() as usize,
+                date.day() as usize,
+            );
+            let lunar = solar.get_lunar_day();
+            let lunar_str = lunar.get_day().to_string();
+            let lunar_str = lunar_str.to_chinese_day();
             res.push(Day {
                 date: date,
                 event: event,
+                lunar: lunar_str,
             });
         }
         res

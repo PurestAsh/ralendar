@@ -10,8 +10,8 @@ mod message;
 mod state;
 mod style;
 mod ui;
+mod util;
 mod widget;
-
 fn main() {
     application(boot, update, view)
         .subscription(subscription)
@@ -23,7 +23,7 @@ fn main() {
         .font(include_bytes!("../assets/font/NotoSansCJKsc-Regular.otf"))
         .window(window::Settings {
             size: (1000, 700).into(),
-            decorations: true,
+            decorations: false,
             min_size: Some((800, 500).into()),
             ..Default::default()
         })

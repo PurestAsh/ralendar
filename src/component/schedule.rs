@@ -7,7 +7,7 @@ use iced::{Color, Length};
 pub fn view<'a>(_state: &ApplicationState) -> Element<'a, Message> {
     container("")
         .height(Length::Fill)
-        .width(300)
+        .width(250)
         .style(|_theme| background(Color::from_rgb(0.1, 0.1, 0.1)))
         .into()
 }

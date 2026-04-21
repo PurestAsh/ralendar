@@ -1,9 +1,5 @@
-use std::time::{Duration, Instant};
-
-use crate::backend::MonthOp;
-use crate::component::calendar;
 use crate::message::{ContentMsg, DateType};
-use crate::style::{background, blue, grau, light_gray, orange, purple};
+use crate::style::{background, black, deep_gray, grau, light_gray, purple};
 use crate::{message::Message, state::ApplicationState};
 use iced::alignment::Vertical;
 use iced::widget::button::Style as ButtonStyle;
@@ -12,9 +8,9 @@ use iced::widget::space::horizontal;
 use iced::widget::{Grid, Space, button, column, container, row, stack, text};
 use iced::{Alignment, Animation, Border, Color, Element, Length, Padding, Task};
 use lilt::Easing;
+use std::time::{Duration, Instant};
 
 pub struct CalendarState {
-    //这个是受side_bar_offset 影响的
     pub title_offset: f32,
     pub animation: Animation<DateType>,
     pub date_offset: f32,
@@ -32,6 +28,28 @@ impl Default for CalendarState {
             current_date_type: DateType::Month,
         }
     }
+}
+
+fn black_line() -> Element<'static, Message> {
+    container(Space::new())
+        .height(2)
+        .width(Length::Fill)
+        .style(|_theme| ContainerStyle {
+            background: Some(black().into()),
+            ..Default::default()
+        })
+        .into()
+}
+
+fn vertical_divider() -> Element<'static, Message> {
+    container(Space::new())
+        .height(Length::Fill)
+        .width(2)
+        .style(|_theme| ContainerStyle {
+            background: Some(black().into()),
+            ..Default::default()
+        })
+        .into()
 }
 
 pub fn view<'a>(state: &ApplicationState) -> Element<'a, Message> {
@@ -70,7 +88,17 @@ pub fn view<'a>(state: &ApplicationState) -> Element<'a, Message> {
                     .padding([20, 0]),
                 container(main_content(state))
                     .width(Length::Fill)
-                    .height(Length::Fill) // .style(|_theme| { background(Color::BLACK) })
+                    .height(Length::Fill)
+                    .style(|_theme| {
+                        ContainerStyle {
+                            border: Border {
+                                radius: 8.0.into(),
+                                ..Default::default()
+                            },
+                            background: Some(light_gray().into()),
+                            ..Default::default()
+                        }
+                    })
             ]
             .padding(Padding::ZERO.bottom(10))
             .width(Length::Fill)
@@ -80,16 +108,13 @@ pub fn view<'a>(state: &ApplicationState) -> Element<'a, Message> {
         .width(Length::Fill)
         .height(Length::Fill),
     )
-    .width(Length::Fill)
-    .height(Length::Fill)
-    .style(|_theme| background(light_gray()))
+    .style(|_theme| background(deep_gray()))
     .into()
 }
 
 pub fn header<'a>(state: &ApplicationState) -> Element<'a, Message> {
     stack!(
         row![
-            // Space::new().width(25),
             Space::new().width(state.calendar_state.title_offset),
             text!("九月").size(18)
         ]
@@ -122,7 +147,7 @@ pub fn header<'a>(state: &ApplicationState) -> Element<'a, Message> {
         .height(Length::Fill),
         row![
             horizontal(),
-            container(row![
+            row![
                 button(
                     text!("年")
                         .width(40)
@@ -132,11 +157,7 @@ pub fn header<'a>(state: &ApplicationState) -> Element<'a, Message> {
                 )
                 .on_press(Message::ContentMsg(ContentMsg::Header(DateType::Year)))
                 .padding(Padding::ZERO)
-                .style(|_thme, _status| {
-                    ButtonStyle {
-                        ..Default::default()
-                    }
-                }),
+                .style(|_thme, _status| ButtonStyle::default()),
                 button(
                     text!("月")
                         .width(40)
@@ -146,11 +167,7 @@ pub fn header<'a>(state: &ApplicationState) -> Element<'a, Message> {
                 )
                 .on_press(Message::ContentMsg(ContentMsg::Header(DateType::Month)))
                 .padding(Padding::ZERO)
-                .style(|_thme, _status| {
-                    ButtonStyle {
-                        ..Default::default()
-                    }
-                }),
+                .style(|_thme, _status| ButtonStyle::default()),
                 button(
                     text!("日")
                         .width(40)
@@ -160,12 +177,8 @@ pub fn header<'a>(state: &ApplicationState) -> Element<'a, Message> {
                 )
                 .on_press(Message::ContentMsg(ContentMsg::Header(DateType::Day)))
                 .padding(Padding::ZERO)
-                .style(|_thme, _status| {
-                    ButtonStyle {
-                        ..Default::default()
-                    }
-                }),
-            ])
+                .style(|_thme, _status| ButtonStyle::default()),
+            ]
             .width(120)
             .height(30),
             horizontal()
@@ -173,6 +186,58 @@ pub fn header<'a>(state: &ApplicationState) -> Element<'a, Message> {
         .width(Length::Fill)
         .height(Length::Fill),
     )
+    .into()
+}
+
+fn day_cell<'a>(day: &crate::backend::Day, x: isize) -> Element<'a, Message> {
+    column![
+        if x < 7 {
+            Space::new().into()
+        } else {
+            black_line()
+        },
+        row![
+            column![
+                row![
+                    text(format!("{}", day.day())),
+                    horizontal(),
+                    text(format!("{}", day.lunar()))
+                ]
+                .width(Length::Fill)
+                .height(15),
+                Space::new().height(5),
+                container(
+                    row![
+                        container(Space::new())
+                            .height(Length::Fill)
+                            .width(2)
+                            .style(|_| ContainerStyle {
+                                background: Some(Color::BLACK.into()),
+                                ..Default::default()
+                            }),
+                        horizontal(),
+                        text(format!("{}", day.event())),
+                    ]
+                    .width(Length::Fill)
+                    .height(20)
+                )
+                .style(|_theme| {
+                    ContainerStyle {
+                        background: Some(grau().into()),
+                        ..Default::default()
+                    }
+                }),
+            ]
+            .padding(2),
+            if (x - 6) % 7 == 0 {
+                Space::new().into()
+            } else {
+                vertical_divider()
+            }
+        ]
+    ]
+    .width(Length::Fill)
+    .height(Length::Fill)
     .into()
 }
 
@@ -185,41 +250,7 @@ pub fn main_content<'a>(state: &ApplicationState) -> Element<'a, Message> {
     let mut iter = data.unwrap().iter();
     for x in 0..42 {
         let day = iter.next().unwrap();
-        cells.push(
-            container(
-                column![
-                    row![text(format!("{}", day.day())), horizontal(), "十一"]
-                        .width(Length::Fill)
-                        .height(15),
-                    container(
-                        row![
-                            container(Space::new())
-                                .height(Length::Fill)
-                                .width(2)
-                                .style(|_thmme| {
-                                    ContainerStyle {
-                                        background: Some(Color::BLACK.into()),
-                                        ..Default::default()
-                                    }
-                                }),
-                            horizontal(),
-                            text(format!("{}", day.event())),
-                        ]
-                        .width(Length::Fill)
-                        .height(20)
-                    )
-                    .style(|_theme| {
-                        ContainerStyle {
-                            background: Some(grau().into()),
-                            ..Default::default()
-                        }
-                    }),
-                ]
-                .width(Length::Fill)
-                .height(Length::Fill),
-            )
-            .into(),
-        );
+        cells.push(container(day_cell(&day, x)).into());
     }
 
     column![
@@ -266,13 +297,14 @@ pub fn main_content<'a>(state: &ApplicationState) -> Element<'a, Message> {
         .padding(Padding::ZERO.bottom(5)),
         container(Space::new())
             .width(Length::Fill)
-            .height(1)
+            .height(2)
             .style(|_theme| {
                 ContainerStyle {
-                    background: Some(blue().into()),
+                    background: Some(black().into()),
                     ..Default::default()
                 }
             }),
+        Space::new().height(4),
         Grid::from_vec(cells).height(Length::Fill).columns(7)
     ]
     .into()

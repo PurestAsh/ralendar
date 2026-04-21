@@ -8,8 +8,7 @@ pub struct ApplicationState {
     pub calendar_state: CalendarState,
 
     //业务state
-    pub calendar:Calendar,
-    
+    pub calendar: Calendar,
 }
 
 impl Default for ApplicationState {
@@ -17,7 +16,7 @@ impl Default for ApplicationState {
         Self {
             sidebar_state: SideBarState::default(),
             calendar_state: CalendarState::default(),
-            calendar:Calendar::new(),
+            calendar: Calendar::new(),
         }
     }
 }
