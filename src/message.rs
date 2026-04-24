@@ -18,6 +18,8 @@ pub enum SideBarMsg {
 pub enum ContentMsg {
     Header(DateType),
     Animation,
+    LoadPage,
+    PageReady,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]

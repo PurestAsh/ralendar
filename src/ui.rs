@@ -1,4 +1,4 @@
-use crate::component::calendar;
+use crate::component::mian_content;
 use crate::component::schedule;
 use crate::component::side_bar;
 use crate::{message::Message, state::ApplicationState};
@@ -13,7 +13,7 @@ pub fn main_page<'a>(state: &ApplicationState) -> Element<'a, Message> {
         row([side_bar::view(state), horizontal().into()]),
         row([
             side_bar::mask_view(state),
-            calendar::view(state),
+            mian_content::view(state),
             schedule::view(state),
         ])
         .width(Length::Fill)

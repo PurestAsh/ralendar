@@ -1,11 +1,11 @@
-use crate::component::{calendar, side_bar};
+use crate::component::{mian_content, side_bar};
+use crate::message::ContentMsg;
 use crate::{message::Message, state::ApplicationState, ui::main_page};
 use iced::{Element, Settings, Task, Theme, application};
 use iced::{Subscription, window};
 
-mod backend;
+mod calendar;
 mod component;
-mod holiday_cn;
 mod message;
 mod state;
 mod style;
@@ -50,11 +50,9 @@ fn view<'a>(state: &'a ApplicationState) -> Element<'a, Message> {
 fn update(state: &mut ApplicationState, msg: Message) -> Task<Message> {
     match msg {
         Message::SideBarMsg(msg) => side_bar::update(state, msg),
-        Message::ContentMsg(msg) => calendar::update(state, msg),
-        Message::StateInitialFinished => {
-            state.calendar.get_month(backend::MonthOp::Current);
-            Task::none()
-        }
+        Message::ContentMsg(msg) => mian_content::update(state, msg),
+        Message::StateInitialFinished => Task::done(Message::ContentMsg(ContentMsg::LoadPage)),
+
         _ => Task::none(),
     }
 }

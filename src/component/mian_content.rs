@@ -1,3 +1,4 @@
+use crate::calendar::{Calendar, Day};
 use crate::message::{ContentMsg, DateType};
 use crate::style::{background, black, deep_gray, grau, light_gray, purple};
 use crate::{message::Message, state::ApplicationState};
@@ -15,6 +16,14 @@ pub struct CalendarState {
     pub animation: Animation<DateType>,
     pub date_offset: f32,
     pub current_date_type: DateType,
+    //用来表示当前页面的数据是否加载完毕
+    pub page_ready: bool,
+    pub month_page: Option<Vec<Day>>,
+    //当前页面的偏移，0表示当前月页面，-1表示上一个页面，1表示下一个页面
+    pub month_offset: i32,
+
+    //业务state
+    pub calendar: Calendar,
 }
 
 impl Default for CalendarState {
@@ -26,7 +35,17 @@ impl Default for CalendarState {
                 .duration(Duration::from_millis(500)),
             date_offset: 40.,
             current_date_type: DateType::Month,
+            page_ready: false,
+            month_page: None,
+            month_offset: 0,
+            calendar: Calendar::new(),
         }
+    }
+}
+impl CalendarState {
+    pub fn get_month(&mut self) {
+        let res = self.calendar.get_month(self.month_offset);
+        self.month_page = Some(res);
     }
 }
 
@@ -189,7 +208,7 @@ pub fn header<'a>(state: &ApplicationState) -> Element<'a, Message> {
     .into()
 }
 
-fn day_cell<'a>(day: &crate::backend::Day, x: isize) -> Element<'a, Message> {
+fn day_cell<'a>(day: &crate::calendar::Day, x: isize) -> Element<'a, Message> {
     column![
         if x < 7 {
             Space::new().into()
@@ -206,35 +225,43 @@ fn day_cell<'a>(day: &crate::backend::Day, x: isize) -> Element<'a, Message> {
                 .width(Length::Fill)
                 .height(15),
                 Space::new().height(5),
-                container(
-                    row![
-                        container(Space::new())
-                            .height(Length::Fill)
-                            .width(2)
-                            .style(|_| ContainerStyle {
-                                background: Some(Color::BLACK.into()),
-                                ..Default::default()
-                            }),
-                        horizontal(),
-                        text(format!("{}", day.event())),
+                column(day.event().iter().map(|event| {
+                    column![
+                        container(
+                            row![
+                                container(Space::new())
+                                    .height(Length::Fill)
+                                    .width(2)
+                                    .style(|_| ContainerStyle {
+                                        background: Some(Color::BLACK.into()),
+                                        ..Default::default()
+                                    }),
+                                horizontal(),
+                                text(format!("{}", event)),
+                            ]
+                            .width(Length::Fill)
+                            .height(20),
+                        )
+                        .style(|_theme| ContainerStyle {
+                            background: Some(grau().into()),
+                            ..Default::default()
+                        }),
+                        Space::new().height(2)
                     ]
-                    .width(Length::Fill)
-                    .height(20)
-                )
-                .style(|_theme| {
-                    ContainerStyle {
-                        background: Some(grau().into()),
-                        ..Default::default()
-                    }
-                }),
-            ].width(Length::Fill)
+                    .into()
+                }))
+                .height(Length::Fill)
+                .width(Length::Fill),
+            ]
+            .width(Length::Fill)
             .padding(2),
             if (x - 6) % 7 == 0 {
                 Space::new().into()
             } else {
                 vertical_divider()
             }
-        ].height(Length::Fill)
+        ]
+        .height(Length::Fill)
         .width(Length::Fill)
     ]
     .width(Length::Fill)
@@ -243,12 +270,13 @@ fn day_cell<'a>(day: &crate::backend::Day, x: isize) -> Element<'a, Message> {
 }
 
 pub fn main_content<'a>(state: &ApplicationState) -> Element<'a, Message> {
+    let state = &state.calendar_state;
     let mut cells = Vec::new();
-    let data = state.calendar.get_cache();
-    if data.is_none() {
+    //如果页面数据没有加载完毕，就先显示一个空白页面
+    if !state.page_ready {
         return "".into();
     }
-    let mut iter = data.unwrap().iter();
+    let mut iter = state.month_page.as_ref().unwrap().iter();
     for x in 0..42 {
         let day = iter.next().unwrap();
         cells.push(container(day_cell(&day, x)).into());
@@ -346,6 +374,15 @@ pub fn update(state: &mut ApplicationState, message: ContentMsg) -> Task<Message
             } else {
                 Task::none()
             }
+        }
+
+        ContentMsg::LoadPage => {
+            state.calendar_state.get_month();
+            Task::done(Message::ContentMsg(ContentMsg::PageReady))
+        }
+        ContentMsg::PageReady => {
+            state.calendar_state.page_ready = true;
+            Task::none()
         }
     }
 }
