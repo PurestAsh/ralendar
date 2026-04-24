@@ -227,14 +227,15 @@ fn day_cell<'a>(day: &crate::backend::Day, x: isize) -> Element<'a, Message> {
                         ..Default::default()
                     }
                 }),
-            ]
+            ].width(Length::Fill)
             .padding(2),
             if (x - 6) % 7 == 0 {
                 Space::new().into()
             } else {
                 vertical_divider()
             }
-        ]
+        ].height(Length::Fill)
+        .width(Length::Fill)
     ]
     .width(Length::Fill)
     .height(Length::Fill)

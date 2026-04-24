@@ -1,6 +1,7 @@
 use std::{collections::HashMap, fmt};
 
 use time::{Date, Duration, Month, OffsetDateTime, UtcOffset};
+use tyme4rs::tyme::Culture;
 use tyme4rs::tyme::solar::SolarDay;
 
 use crate::backend::holiday::Holidays;
@@ -138,15 +139,25 @@ impl Calendar {
         for index in 0..42 {
             let time = first_day.checked_add(Duration::days(index)).unwrap();
             let date = time.date();
-            let event = self.get_holiday(date);
             let solar = SolarDay::from_ymd(
                 date.year() as isize,
                 date.month() as usize,
                 date.day() as usize,
             );
+            let mut event = Vec::new();
+            solar.get_festival().map(|solar_festival| {
+                event.push(solar_festival.get_name());
+            });
+
             let lunar = solar.get_lunar_day();
+
+            lunar.get_festival().map(|lunar_festival| {
+                event.push(lunar_festival.get_name());
+            });
             let lunar_str = lunar.get_day().to_string();
             let lunar_str = lunar_str.to_chinese_day();
+
+            event.dedup();
             res.push(Day {
                 date: date,
                 event: event,
