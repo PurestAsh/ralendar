@@ -1,21 +1,13 @@
-use gpui_kit::{Context, StyleRefinement};
-
-use crate::style::{global_style, sidebar};
+use gpui_kit::Context;
 
 pub struct State {
     date_switch: [bool; 3],
-
-    global_style: StyleRefinement,
-    sidebar: StyleRefinement,
 }
 
 impl State {
-    pub fn new(cx: &Context<Self>) -> Self {
+    pub fn new(_cx: &Context<Self>) -> Self {
         Self {
             date_switch: [false, true, false],
-
-            global_style: global_style(cx),
-            sidebar: sidebar(cx),
         }
     }
 
@@ -41,13 +33,5 @@ impl State {
 
     pub fn day_check(&self) -> bool {
         self.date_switch[2]
-    }
-
-    pub fn global_style(&self) -> &StyleRefinement {
-        &self.global_style
-    }
-
-    pub fn sidebar_style(&self) -> &StyleRefinement {
-        &self.sidebar
     }
 }

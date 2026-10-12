@@ -9,7 +9,8 @@ use gpui::{
 };
 
 use crate::{
-    icon::mini, state::State, style::sidebar,
+    icon::mini, state::State,
+    style::{global_style, sidebar},
     title_bar::title_bar,
 };
 
@@ -18,7 +19,7 @@ pub fn ui(
     cx: &Context<State>,
 ) -> impl IntoElement {
     div()
-        // .refine_style(state.global_style())
+        .refine_style(&global_style(cx))
         .flex()
         .w(relative(1.0))
         .h(relative(1.0))
@@ -26,7 +27,7 @@ pub fn ui(
             div()
                 .w(px(300.))
                 .h(relative(1.0))
-                .refine_style(state.sidebar_style())
+                .refine_style(&sidebar(cx))
                 .border_r_1(),
         )
         .child(title_bar(state, cx))

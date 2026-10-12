@@ -54,7 +54,6 @@ pub fn titlebar_style(
 pub fn sidebar(
     cx: &Context<State>,
 ) -> StyleRefinement {
-    println!("color:{}", cx.theme().background);
     StyleRefinement {
         background: Some(cx.theme().background.into()),
         border_color: Some(cx.theme().background),

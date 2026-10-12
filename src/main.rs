@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use gpui_kit::component::{
-    Theme, ThemeRegistry, TitleBar,
+    ActiveTheme, Theme, ThemeRegistry, TitleBar,
 };
 use gpui_kit::{
     App, AppContext, Context, IntoElement, Render,
@@ -26,6 +26,7 @@ mod ui;
 fn main() {
     application().with_assets(assets::Assets).run(
         |cx| {
+        
             init(cx);
             init_theme(cx);
 
