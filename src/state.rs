@@ -1,4 +1,4 @@
-use gpui_kit::StyleRefinement;
+use gpui_kit::{Context, StyleRefinement};
 
 use crate::style::{global_style, sidebar};
 
@@ -9,18 +9,16 @@ pub struct State {
     sidebar: StyleRefinement,
 }
 
-impl Default for State {
-    fn default() -> Self {
+impl State {
+    pub fn new(cx: &Context<Self>) -> Self {
         Self {
             date_switch: [false, true, false],
 
-            global_style: global_style(),
-            sidebar: sidebar(),
+            global_style: global_style(cx),
+            sidebar: sidebar(cx),
         }
     }
-}
 
-impl State {
     // 1 0 -> 1  1 1 -> 0 0 -> 0
     // 0 0 -> 0  0 1 -> 1 1 -> 1
     // 0 0 -> 0  0 0 -> 0 0 -> 1

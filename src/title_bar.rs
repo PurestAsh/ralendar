@@ -18,7 +18,7 @@ pub fn title_bar(
     div().w(relative(1.0)).child(
         TitleBar::new()
             .flex()
-            .refine_style(&titlebar_style())
+            .refine_style(&titlebar_style(cx))
             .child(div().flex_grow_1())
             .child(
                 ToggleGroup::new("date-switch")

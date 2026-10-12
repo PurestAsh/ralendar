@@ -1,9 +1,12 @@
+use gpui_kit::component::ActiveTheme;
 use gpui_kit::{
-    self as gpui, Corners, CornersRefinement,
+    self as gpui, Context, Corners, CornersRefinement,
     TextStyleRefinement, rgb,
 };
 use gpui_kit::{AbsoluteLength, px};
 use gpui_kit::{BorderStyle, StyleRefinement};
+
+use crate::state::State;
 
 /*
 dracula
@@ -25,32 +28,36 @@ Yellow 	        #f1fa8c 	241 250 140 	65° 92% 76% 	#f1fa8c
 
 //全局div
 
-const BACKGROUND: u32 = 0x282a36;
-const CURRENT_LINE: u32 = 0x44475a;
-const FOREGROUND: u32 = 0xf8f8f2;
-
-pub fn global_style() -> StyleRefinement {
+pub fn global_style(
+    cx: &Context<State>,
+) -> StyleRefinement {
     StyleRefinement {
-        background: Some(rgb(BACKGROUND).into()),
+        background: Some(cx.theme().background.into()),
         ..Default::default()
     }
 }
 
-pub fn titlebar_style() -> StyleRefinement {
+pub fn titlebar_style(
+    cx: &Context<State>,
+) -> StyleRefinement {
     StyleRefinement {
         text: TextStyleRefinement {
-            color: Some(rgb(FOREGROUND).into()),
+            color: Some(cx.theme().foreground),
             ..Default::default()
         },
-        background: Some(rgb(BACKGROUND).into()),
+        background: Some(cx.theme().background.into()),
         ..Default::default()
     }
 }
 
 //侧边栏顶级div
-pub fn sidebar() -> StyleRefinement {
+pub fn sidebar(
+    cx: &Context<State>,
+) -> StyleRefinement {
+    println!("color:{}", cx.theme().background);
     StyleRefinement {
-        border_color: Some(rgb(CURRENT_LINE).into()),
+        background: Some(cx.theme().background.into()),
+        border_color: Some(cx.theme().background),
         ..Default::default()
     }
 }

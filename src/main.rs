@@ -26,8 +26,8 @@ mod ui;
 fn main() {
     application().with_assets(assets::Assets).run(
         |cx| {
-            init_theme(cx);
             init(cx);
+            init_theme(cx);
 
             open_window(
                 WindowOptions {
@@ -43,7 +43,7 @@ fn main() {
                     ..TitleBar::window_options()
                 },
                 cx,
-                |_, cx| cx.new(|_| State::default()),
+                |_, cx| cx.new(|cx| State::new(cx)),
             )
             .expect("Failed to open window");
         },
@@ -75,6 +75,7 @@ pub fn init_theme(cx: &mut App) {
                     .get(&theme_name)
                     .cloned()
             {
+                
                 Theme::update(cx, |current| {
                     current.apply_config(&theme)
                 });

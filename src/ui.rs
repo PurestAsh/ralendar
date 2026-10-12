@@ -18,7 +18,7 @@ pub fn ui(
     cx: &Context<State>,
 ) -> impl IntoElement {
     div()
-        .refine_style(state.global_style())
+        // .refine_style(state.global_style())
         .flex()
         .w(relative(1.0))
         .h(relative(1.0))
