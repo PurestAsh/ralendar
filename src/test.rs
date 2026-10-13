@@ -1,6 +1,6 @@
 use gpui_kit::{
-    IntoElement, ParentElement, Styled,
-    component::TitleBar, div, px, relative,
+    IntoElement, ParentElement, Styled, component::TitleBar, div, px,
+    relative,
 };
 
 pub fn test() -> impl IntoElement {

@@ -1,16 +1,16 @@
 use gpui_kit::{
-    self as gpui, Context, base::StyledExt, px,
-    relative,
+    self as gpui, Context, base::StyledExt, px, relative,
 };
 
 use gpui::{
-    IntoElement, ParentElement, Styled,
-    component::TitleBar, div,
+    IntoElement, ParentElement, Styled, component::TitleBar, div,
 };
 
 use crate::{
-    icon::mini, state::State,
-    style::{global_style, sidebar},
+    icon::mini,
+    side_bar::sidebar,
+    state::State,
+    style::{global_style, sidebar_style},
     title_bar::title_bar,
 };
 
@@ -23,12 +23,6 @@ pub fn ui(
         .flex()
         .w(relative(1.0))
         .h(relative(1.0))
-        .child(
-            div()
-                .w(px(300.))
-                .h(relative(1.0))
-                .refine_style(&sidebar(cx))
-                .border_r_1(),
-        )
+        .child(sidebar(state, cx))
         .child(title_bar(state, cx))
 }

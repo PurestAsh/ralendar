@@ -1,11 +1,9 @@
 use gpui_kit::base::StyledExt;
-use gpui_kit::component::button::{
-    Toggle, ToggleGroup,
-};
+use gpui_kit::component::button::{Toggle, ToggleGroup};
 use gpui_kit::{self as gpui, Context};
 use gpui_kit::{
-    IntoElement, ParentElement, Styled,
-    component::TitleBar, div, relative,
+    IntoElement, ParentElement, Styled, component::TitleBar, div,
+    relative,
 };
 
 use crate::style::titlebar_style;
@@ -25,23 +23,17 @@ pub fn title_bar(
                     .child(
                         Toggle::new(0)
                             .label("年")
-                            .checked(
-                                state.year_check(),
-                            ),
+                            .checked(state.year_check()),
                     )
                     .child(
                         Toggle::new(1)
                             .label("月")
-                            .checked(
-                                state.month_check(),
-                            ),
+                            .checked(state.month_check()),
                     )
                     .child(
                         Toggle::new(2)
                             .label("日")
-                            .checked(
-                                state.day_check(),
-                            ),
+                            .checked(state.day_check()),
                     )
                     .on_click(cx.listener(
                         |state, checkeds, _, _| {

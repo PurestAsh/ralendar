@@ -28,18 +28,14 @@ Yellow 	        #f1fa8c 	241 250 140 	65° 92% 76% 	#f1fa8c
 
 //全局div
 
-pub fn global_style(
-    cx: &Context<State>,
-) -> StyleRefinement {
+pub fn global_style(cx: &Context<State>) -> StyleRefinement {
     StyleRefinement {
         background: Some(cx.theme().background.into()),
         ..Default::default()
     }
 }
 
-pub fn titlebar_style(
-    cx: &Context<State>,
-) -> StyleRefinement {
+pub fn titlebar_style(cx: &Context<State>) -> StyleRefinement {
     StyleRefinement {
         text: TextStyleRefinement {
             color: Some(cx.theme().foreground),
@@ -51,9 +47,7 @@ pub fn titlebar_style(
 }
 
 //侧边栏顶级div
-pub fn sidebar(
-    cx: &Context<State>,
-) -> StyleRefinement {
+pub fn sidebar_style(cx: &Context<State>) -> StyleRefinement {
     StyleRefinement {
         background: Some(cx.theme().background.into()),
         border_color: Some(cx.theme().background),
