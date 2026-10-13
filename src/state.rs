@@ -1,5 +1,7 @@
+use chrono::{Local, NaiveDate};
 use gpui_kit::{
-    AppContext, Context, Entity, Window, base::CalendarState,
+    AppContext, Context, Entity, Subscription, Window,
+    base::{CalendarEvent, CalendarState, Date},
 };
 
 pub struct State {
@@ -7,21 +9,50 @@ pub struct State {
     date_switch: [bool; 3],
     //小日历state
     mini_state: Entity<CalendarState>,
+
+    //subscription
+    calendar_subsciption: Subscription,
+
+    //小日历点击后的日期
+    select_date: NaiveDate,
+
+    //Schedule  日程开关
+    schedule_toggle: [bool; 3],
 }
 
 impl State {
     pub fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
-        let state = cx.new(|cx| CalendarState::new(window, cx));
+        let e = cx.new(|cx| CalendarState::new(window, cx));
         Self {
             date_switch: [false, true, false],
-            mini_state: state,
+            calendar_subsciption: Self::calendar_subscribe(&e, cx),
+
+            mini_state: e,
+            select_date: Local::now().date_naive(),
+            schedule_toggle: [true, true, true],
         }
+    }
+
+    fn calendar_subscribe(
+        e: &Entity<CalendarState>,
+        cx: &mut Context<Self>,
+    ) -> Subscription {
+        cx.subscribe(e, |state, _, event, _| match event {
+            CalendarEvent::Selected(date) => match date {
+                Date::Single(Some(selected_date)) => {
+                    state.mini_select_date(selected_date);
+                }
+                _ => {
+                    println!("Selection cleared");
+                }
+            },
+        })
     }
 
     // 1 0 -> 1  1 1 -> 0 0 -> 0
     // 0 0 -> 0  0 1 -> 1 1 -> 1
     // 0 0 -> 0  0 0 -> 0 0 -> 1
-    pub fn switch_date(&mut self, checkeds: &Vec<bool>) {
+    pub fn switch_mode(&mut self, checkeds: &Vec<bool>) {
         for i in 0..3 {
             self.date_switch[i] ^= checkeds[i];
         }
@@ -41,5 +72,32 @@ impl State {
 
     pub fn mini_state(&self) -> &Entity<CalendarState> {
         &self.mini_state
+    }
+
+    pub fn mini_select_date(&mut self, date: &NaiveDate) {
+        self.select_date = *date;
+    }
+
+    pub fn my_schedule(&self) -> bool {
+        self.schedule_toggle[0]
+    }
+
+    pub fn cn_schedule(&self) -> bool {
+        self.schedule_toggle[1]
+    }
+
+    pub fn en_schedule(&self) -> bool {
+        self.schedule_toggle[2]
+    }
+
+    pub fn toggle_schedule(&mut self, pos: u8) {
+        match pos {
+            0 => self.schedule_toggle[0] = !self.schedule_toggle[0],
+            1 => self.schedule_toggle[1] = !self.schedule_toggle[1],
+            2 => self.schedule_toggle[2] = !self.schedule_toggle[2],
+            _ => todo!(),
+        }
+
+        println!("{:?}", self.schedule_toggle);
     }
 }

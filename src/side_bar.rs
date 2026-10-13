@@ -8,7 +8,9 @@ use gpui_kit::{
         calendar::Calendar,
         sidebar::*,
     },
-    div, px, relative,
+    div,
+    prelude::FluentBuilder,
+    px, relative,
 };
 
 use gpui_kit as gpui;
@@ -43,26 +45,61 @@ pub fn sidebar(
                                 .child(IconName::Settings),
                         ),
                 )
-                .child(Calendar::new(state.mini_state()).w_full()),
+                .child(
+                    Calendar::new(state.mini_state())
+                        .w_full()
+                        .border_0(),
+                ),
         )
         .child(
-            SidebarGroup::new("Navigation").child(
+            SidebarGroup::new("我的日历").child(
                 SidebarMenu::new()
                     .child(
-                        SidebarMenuItem::new("Dashboard")
-                            .icon(IconName::LayoutDashboard)
-                            .on_click(|_, _, _| {
-                                println!("Dashboard clicked")
-                            }),
+                        SidebarMenuItem::new("我的日程")
+                            .icon(Icon::empty())
+                            .when(state.my_schedule(), |a| {
+                                a.icon(IconName::Check)
+                            })
+                            .on_click(cx.listener(
+                                |state, _, _, _| {
+                                    state.toggle_schedule(0);
+                                },
+                            )),
                     )
                     .child(
-                        SidebarMenuItem::new("Settings")
-                            .icon(IconName::Settings)
-                            .on_click(|_, _, _| {
-                                println!("Settings clicked")
-                            }),
+                        SidebarMenuItem::new("中国节假日")
+                            .icon(Icon::empty())
+                            .when(state.cn_schedule(), |a| {
+                                a.icon(IconName::Check)
+                            })
+                            .on_click(cx.listener(
+                                |state, _, _, _| {
+                                    state.toggle_schedule(1);
+                                },
+                            )),
+                    )
+                    .child(
+                        SidebarMenuItem::new("国际节假日")
+                            .icon(Icon::empty())
+                            .when(state.en_schedule(), |a| {
+                                a.icon(IconName::Check)
+                            })
+                            .on_click(cx.listener(
+                                |state, _, _, _| {
+                                    state.toggle_schedule(2);
+                                },
+                            )),
                     ),
             ),
         )
-        .footer(SidebarFooter::new().child("User Profile"))
+        .footer(
+            SidebarFooter::new()
+                .justify_between()
+                .child(
+                    h_flex()
+                        .gap_2()
+                        .child(IconName::CircleUser)
+                        .child("Three Water"),
+                )
+        )
 }

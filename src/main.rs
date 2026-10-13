@@ -21,7 +21,33 @@ mod test;
 mod title_bar;
 mod ui;
 
-fn main() { 
+impl Render for State {
+    fn render(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        ui(self, cx)
+        // test()
+    }
+}
+
+pub fn init_theme(cx: &mut App) {
+    let theme_name = SharedString::from("Ayu Dark");
+    // Load and watch themes from ./themes directory
+    ThemeRegistry::watch_dir(PathBuf::from("theme"), cx, move |cx| {
+        if let Some(theme) = ThemeRegistry::global(cx)
+            .themes()
+            .get(&theme_name)
+            .cloned()
+        {
+            Theme::update(cx, |current| current.apply_config(&theme));
+        }
+    })
+    .unwrap()
+}
+
+fn main() {
     application().with_assets(assets::Assets).run(|cx| {
         init(cx);
         init_theme(cx);
@@ -41,31 +67,4 @@ fn main() {
         )
         .expect("Failed to open window");
     });
-}
-
-impl Render for State {
-    fn render(
-        &mut self,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) -> impl IntoElement {
-        ui(self, cx)
-        // test()
-    }
-}
-
-pub fn init_theme(cx: &mut App) {
-    println!("{}", PathBuf::from("theme").exists());
-    let theme_name = SharedString::from("Ayu Dark");
-    // Load and watch themes from ./themes directory
-    ThemeRegistry::watch_dir(PathBuf::from("theme"), cx, move |cx| {
-        if let Some(theme) = ThemeRegistry::global(cx)
-            .themes()
-            .get(&theme_name)
-            .cloned()
-        {
-            Theme::update(cx, |current| current.apply_config(&theme));
-        }
-    })
-    .unwrap()
 }
