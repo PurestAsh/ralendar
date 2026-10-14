@@ -74,6 +74,10 @@ impl State {
         &self.mini_state
     }
 
+    pub fn select_date(&self) -> NaiveDate {
+        self.select_date
+    }
+
     pub fn mini_select_date(&mut self, date: &NaiveDate) {
         self.select_date = *date;
     }

@@ -14,6 +14,7 @@ use crate::state::State;
 use crate::test::test;
 use crate::ui::ui;
 mod icon;
+mod main_content;
 mod side_bar;
 mod state;
 mod style;
@@ -28,7 +29,7 @@ impl Render for State {
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
         ui(self, cx)
-        // test()
+        // test(self)
     }
 }
 

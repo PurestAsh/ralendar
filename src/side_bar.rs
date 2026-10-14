@@ -1,5 +1,6 @@
 use gpui_kit::{
-    Context, InteractiveElement, IntoElement, ParentElement, Styled,
+    Context, InteractiveElement, IntoElement, Length, ParentElement,
+    Styled,
     assets::IconName,
     base::h_flex,
     component::{
@@ -22,12 +23,11 @@ pub fn sidebar(
     cx: &Context<State>,
 ) -> impl IntoElement {
     Sidebar::new(0)
-        .w(px(300.))
         .h(relative(1.0))
         .border_r_1()
         .header(
             div()
-                .w_full()
+                .relative()
                 .child(
                     h_flex()
                         .w_full()
@@ -47,7 +47,8 @@ pub fn sidebar(
                 )
                 .child(
                     Calendar::new(state.mini_state())
-                        .w_full()
+                        .relative()
+                        .left_neg_2()
                         .border_0(),
                 ),
         )
@@ -93,13 +94,11 @@ pub fn sidebar(
             ),
         )
         .footer(
-            SidebarFooter::new()
-                .justify_between()
-                .child(
-                    h_flex()
-                        .gap_2()
-                        .child(IconName::CircleUser)
-                        .child("Three Water"),
-                )
+            SidebarFooter::new().justify_between().child(
+                h_flex()
+                    .gap_2()
+                    .child(IconName::CircleUser)
+                    .child("Three Water"),
+            ),
         )
 }
