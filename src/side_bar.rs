@@ -25,28 +25,15 @@ pub fn sidebar(
     Sidebar::new(0)
         .h(relative(1.0))
         .border_r_1()
+        .collapsible(SidebarCollapsible::Offcanvas)
+        .collapsed(state.sidebar_switch())
         .header(
             div()
                 .relative()
-                .child(
-                    h_flex()
-                        .w_full()
-                        .justify_between()
-                        .p_2()
-                        .child("春秋日历")
-                        .child(
-                            Button::new("settings")
-                                .ghost()
-                                .on_click(cx.listener(
-                                    |state, _, _, _| {
-                                        println!("settings clicked")
-                                    },
-                                ))
-                                .child(IconName::Settings),
-                        ),
-                )
+                .child(div().p_2().child("春秋日历"))
                 .child(
                     Calendar::new(state.mini_state())
+                        .p_2()
                         .relative()
                         .left_neg_2()
                         .border_0(),

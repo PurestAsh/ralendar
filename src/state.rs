@@ -4,6 +4,8 @@ use gpui_kit::{
     base::{CalendarEvent, CalendarState, Date},
 };
 
+use crate::backend::{Backend, CalendarDb};
+
 pub struct State {
     //按钮控制
     date_switch: [bool; 3],
@@ -18,6 +20,11 @@ pub struct State {
 
     //Schedule  日程开关
     schedule_toggle: [bool; 3],
+
+    //侧边栏开关
+    sidebar_switch: bool,
+
+    backend: Backend,
 }
 
 impl State {
@@ -30,6 +37,8 @@ impl State {
             mini_state: e,
             select_date: Local::now().date_naive(),
             schedule_toggle: [true, true, true],
+            sidebar_switch: false,
+            backend: Backend::new(),
         }
     }
 
@@ -103,5 +112,17 @@ impl State {
         }
 
         println!("{:?}", self.schedule_toggle);
+    }
+
+    pub fn toggle_sidebar(&mut self) {
+        self.sidebar_switch = !self.sidebar_switch;
+    }
+
+    pub fn sidebar_switch(&self) -> bool {
+        self.sidebar_switch
+    }
+
+    pub fn backend(&self) -> &Backend {
+        &self.backend
     }
 }

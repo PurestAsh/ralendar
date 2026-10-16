@@ -1,18 +1,15 @@
 use std::path::PathBuf;
 
-use gpui_kit::component::{
-    ActiveTheme, Theme, ThemeRegistry, TitleBar,
-};
+use gpui_kit::component::{Theme, ThemeRegistry, TitleBar};
 use gpui_kit::{
     App, AppContext, Context, IntoElement, Render, SharedString,
-    Window, WindowBounds, WindowDecorations, WindowOptions, bounds,
-    div, px, size,
+    Window, WindowBounds, WindowDecorations, WindowOptions, px, size,
 };
 use gpui_kit::{application, assets, init, open_window};
 
 use crate::state::State;
-use crate::test::test;
 use crate::ui::ui;
+mod backend;
 mod icon;
 mod main_content;
 mod side_bar;

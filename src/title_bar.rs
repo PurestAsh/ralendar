@@ -2,6 +2,7 @@ use gpui_kit::base::{StyledExt, h_flex};
 use gpui_kit::component::button::{
     Button, ButtonVariants, Toggle, ToggleGroup,
 };
+use gpui_kit::component::sidebar::SidebarToggleButton;
 use gpui_kit::component::{ActiveTheme, IconName};
 use gpui_kit::{self as gpui, Context, px, size};
 use gpui_kit::{
@@ -21,7 +22,20 @@ pub fn title_bar(
             .flex()
             .gap_1()
             .refine_style(&titlebar_style(cx))
-            .child("2026年10月")
+            .child(
+                SidebarToggleButton::new()
+                    .collapsed(state.sidebar_switch())
+                    .on_click(cx.listener(|state, _, _, _| {
+                        state.toggle_sidebar();
+                    })),
+            )
+            .child(
+                div()
+                    .pl_2()
+                    .border_l_1()
+                    .border_color(cx.theme().border)
+                    .child("2026年10月"),
+            )
             .child(div().flex_grow_1())
             .child(
                 ToggleGroup::new("date-switch")
