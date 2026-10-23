@@ -1,9 +1,13 @@
 use chrono::{Datelike, Duration, Local, NaiveDate};
 
 use gpui_kit::{
-    Context, Hsla, IntoElement, ParentElement, Styled,
+    Context, Hsla, InteractiveElement, IntoElement, ParentElement,
+    Styled,
     base::{StyledExt, h_flex, v_flex},
-    component::{ActiveTheme, Theme},
+    component::{
+        ActiveTheme, IconName, Theme,
+        button::{Button, ButtonVariants},
+    },
     div, px, rgb,
 };
 
@@ -97,23 +101,20 @@ fn tag(label: String, color: Hsla) -> impl IntoElement {
 }
 
 fn day_cell(
-    theme: &Theme,
+    state: &mut State,
+    cx: &Context<State>,
     date: NaiveDate,
-    month: u32,
-    today: NaiveDate,
-    selected: NaiveDate,
-    state: &State,
 ) -> impl IntoElement {
     let is_weekend =
         matches!(date.weekday().num_days_from_monday(), 5 | 6);
-    let is_outside = date.month() != month;
-    let is_today = date == today;
-    let is_selected = date == selected;
+    let is_outside = date.month() != state.select_date().month();
+    let is_today = date.eq(state.today());
+    let is_selected = date.eq(state.select_date());
 
     let mut bg = if is_outside {
-        theme.background
+        cx.theme().background
     } else {
-        theme.muted
+        cx.theme().muted
     };
 
     let mut cell = v_flex()
@@ -122,29 +123,35 @@ fn day_cell(
         .rounded(px(10.))
         .border_1()
         .border_color(if is_outside {
-            theme.background
+            cx.theme().background
         } else {
-            theme.border
+            cx.theme().border
         })
+        .on_mouse_up(
+            gpui_kit::MouseButton::Left,
+            cx.listener(move |state, _, _, _| {
+                state.change_select_date(date);
+            }),
+        )
         .overflow_hidden();
 
     if is_today {
-        bg = theme.primary.opacity(0.14);
-        cell = cell.border_color(theme.primary);
+        bg = cx.theme().primary.opacity(0.14);
+        cell = cell.border_color(cx.theme().primary);
     } else if is_selected {
-        cell = cell.border_color(theme.primary);
+        cell = cell.border_color(cx.theme().primary);
     }
     cell = cell.bg(bg);
 
     // 标题行：日期数字 + 角标
     let num_color = if is_today {
-        theme.primary_foreground
+        cx.theme().primary_foreground
     } else if is_outside {
-        theme.muted_foreground
+        cx.theme().muted_foreground
     } else if is_weekend {
-        theme.secondary_foreground
+        cx.theme().secondary_foreground
     } else {
-        theme.foreground
+        cx.theme().foreground
     };
 
     let mut number = div()
@@ -160,7 +167,7 @@ fn day_cell(
         .text_color(num_color)
         .child(date.day().to_string());
     if is_today {
-        number = number.bg(theme.primary);
+        number = number.bg(cx.theme().primary);
     }
 
     let events = state.backend().get_event(date);
@@ -171,25 +178,25 @@ fn day_cell(
         .items_center()
         .child(number);
     if events.iter().any(|event| event.cal == Cal::Rest) {
-        top = top.child(badge("休", theme.danger));
+        top = top.child(badge("休", cx.theme().danger));
     } else if events.iter().any(|s| s.cal == Cal::Work) {
-        top = top.child(badge("班", theme.secondary_foreground));
+        top = top.child(badge("班", cx.theme().secondary_foreground));
     } else if events.iter().any(|s| s.cal == Cal::Leave) {
-        top = top.child(badge("假", theme.success));
+        top = top.child(badge("假", cx.theme().success));
     }
     cell = cell.child(top);
 
     // 日程条：最多三条，多余收起为 +N
     let mut chips = v_flex().w_full().gap(px(3.)).min_w(px(0.));
     for event in events.iter().take(3) {
-        chips = chips.child(chip(&event, theme));
+        chips = chips.child(chip(&event, cx.theme()));
     }
     if events.len() > 3 {
         chips = chips.child(
             div()
                 .pl(px(2.))
                 .text_xs()
-                .text_color(theme.muted_foreground)
+                .text_color(cx.theme().muted_foreground)
                 .child(format!("+{} 项", events.len() - 3)),
         );
     }
@@ -202,22 +209,21 @@ fn month_view(
     state: &mut State,
     cx: &Context<State>,
 ) -> impl IntoElement {
-    let theme = cx.theme();
-    let today = Local::now().date_naive();
     let anchor = state.select_date();
 
     let first =
         NaiveDate::from_ymd_opt(anchor.year(), anchor.month(), 1)
             .unwrap();
     let offset = first.weekday().num_days_from_monday() as i64;
+    //这个月的周一
     let start = first - Duration::days(offset);
 
     let mut head = div().grid().grid_cols(7).gap_1();
     for (i, wd) in WEEKDAYS.iter().enumerate() {
         let color = if i >= 5 {
-            theme.muted_foreground
+            cx.theme().muted_foreground
         } else {
-            theme.secondary_foreground
+            cx.theme().secondary_foreground
         };
         head = head.child(
             div()
@@ -233,21 +239,14 @@ fn month_view(
     let mut grid = div().grid().grid_cols(7).grid_rows(6).gap_1();
     for n in 0..42 {
         let date = start + Duration::days(n);
-        grid = grid.child(day_cell(
-            theme,
-            date,
-            anchor.month(),
-            today,
-            anchor,
-            state,
-        ));
+        grid = grid.child(day_cell(state, cx, date));
     }
 
     v_flex()
         .size_full()
         .gap_2()
         .p_3()
-        .bg(theme.background)
+        .bg(cx.theme().background)
         .child(head)
         .child(grid.flex_1().min_h(px(0.)).w_full())
 }
@@ -258,9 +257,8 @@ fn detail(
     cx: &Context<State>,
 ) -> impl IntoElement {
     let theme = cx.theme();
-    let today = Local::now().date_naive();
-    let date = state.select_date();
-    let is_today = date == today;
+    let is_today = state.is_today();
+    let date= *state.select_date();
 
     // ---------- 头部：日期、星期与假期标签 ----------
     let mut tags: Vec<gpui_kit::AnyElement> = Vec::new();
@@ -280,7 +278,7 @@ fn detail(
         );
     }
 
-    let in_holiday = in_holiday(state, date);
+    let in_holiday = in_holiday(state);
     if let Some((index, period, title)) = in_holiday {
         tags.push(
             tag(
@@ -450,16 +448,15 @@ fn detail(
         body = body.child(list);
     }
 
-    //todo 底部暂时不需要
-    // // ---------- 底部：为这一天添加日程 ----------
-    // let foot =
-    //     div().p_3().border_t_1().border_color(theme.border).child(
-    //         Button::new("add-here")
-    //             .primary()
-    //             .w_full()
-    //             .icon(IconName::Plus)
-    //             .child("在这一天添加日程"),
-    //     );
+    // ---------- 底部：为这一天添加日程 ----------
+    let foot =
+        div().p_3().border_t_1().border_color(theme.border).child(
+            Button::new("add-here")
+                .primary()
+                .w_full()
+                .icon(IconName::Plus)
+                .child("在这一天添加日程"),
+        );
 
     v_flex()
         .h_full()
@@ -469,6 +466,7 @@ fn detail(
         .border_color(theme.border)
         .child(head)
         .child(body)
+        .child(foot)
 }
 
 pub fn main_content(
@@ -484,20 +482,31 @@ pub fn main_content(
         .child(detail(state, cx))
 }
 
-pub fn in_holiday(
-    state: &State,
-    date: NaiveDate,
-) -> Option<(i64, i64, String)> {
+pub fn in_holiday(state: &State) -> Option<(i64, i64, String)> {
+    let date = *state.select_date();
     let event = state.backend().get_event_by_date(1, date);
 
     event.map(|event| {
-        let start_time = event.start_time;
+        let start_date = event.start_date;
 
-        let index = (date - start_time).num_days() + 1;
+        let index = (date - start_date).num_days() + 1;
 
         let period =
-            (event.end_time - event.start_time).num_days() + 1;
+            (event.end_date - event.start_date).num_days() + 1;
 
         (index, period, event.title)
     })
+}
+
+#[cfg(test)]
+mod test {
+    use chrono::{Local, NaiveDate};
+
+    #[test]
+    fn test_add_day() {
+        let now = Local::now().date_naive();
+        let t = NaiveDate::from_ymd_opt(2026, 10, 20).unwrap();
+        let day = t - now;
+        println!("day:{},hours:{}", day.num_days(), day.num_hours())
+    }
 }

@@ -46,6 +46,8 @@ pub fn init_theme(cx: &mut App) {
 }
 
 fn main() {
+
+    
     application().with_assets(assets::Assets).run(|cx| {
         init(cx);
         init_theme(cx);

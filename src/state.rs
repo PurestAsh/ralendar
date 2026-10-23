@@ -15,8 +15,11 @@ pub struct State {
     //subscription
     calendar_subsciption: Subscription,
 
-    //小日历点击后的日期
+    //小日历点击后的日期,或者月视图点击的日期.
     select_date: NaiveDate,
+
+    //今天，不变
+    today: NaiveDate,
 
     //Schedule  日程开关
     schedule_toggle: [bool; 3],
@@ -36,6 +39,7 @@ impl State {
 
             mini_state: e,
             select_date: Local::now().date_naive(),
+            today: Local::now().date_naive(),
             schedule_toggle: [true, true, true],
             sidebar_switch: false,
             backend: Backend::new(),
@@ -83,8 +87,12 @@ impl State {
         &self.mini_state
     }
 
-    pub fn select_date(&self) -> NaiveDate {
-        self.select_date
+    pub fn select_date(&self) -> &NaiveDate {
+        &self.select_date
+    }
+
+    pub fn change_select_date(&mut self, date: NaiveDate) {
+        self.select_date = date;
     }
 
     pub fn mini_select_date(&mut self, date: &NaiveDate) {
@@ -124,5 +132,13 @@ impl State {
 
     pub fn backend(&self) -> &Backend {
         &self.backend
+    }
+
+    pub fn is_today(&self) -> bool {
+        self.select_date == self.today
+    }
+
+    pub fn today(&self) -> &NaiveDate {
+        &self.today
     }
 }

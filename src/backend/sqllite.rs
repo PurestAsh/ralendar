@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use chrono::NaiveDate;
 use rusqlite::{Connection, OptionalExtension, Result, params};
 use xdg::BaseDirectories;
@@ -21,19 +19,16 @@ impl CalendarDb {
             std::fs::create_dir_all(&data_home)
                 .expect("无法创建用户数据目录");
         }
+        let path = data_home.join("ralendar.db");
+        assert!(path.exists());
 
-        Self::open(data_home.join("calendar.db")).unwrap()
-    }
-
-    /// 打开指定路径的数据库，并初始化表结构
-    fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let conn = Connection::open(path)?;
+        let conn = Connection::open(path).unwrap();
         // 打开外键约束（SQLite 默认关闭）
-        conn.pragma_update(None, "foreign_keys", "ON")?;
+        conn.pragma_update(None, "foreign_keys", "ON").unwrap();
 
         let db = Self { conn };
-        db.init()?;
-        Ok(db)
+        db.init().unwrap();
+        db
     }
 
     /// 初始化表结构，不会重复创建已有的表
@@ -93,16 +88,29 @@ impl CalendarDb {
     }
 
     /// 查询所有分类，按 sort_order 排序
-    pub fn get_categories(&self) -> Result<Vec<Category>> {
-        let mut stmt = self.conn.prepare(
-            "SELECT id, name, color, enabled, sort_order
+    pub fn get_categories(&self) -> Vec<Category> {
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT id, name, color, enabled, sort_order
              FROM categories
-             ORDER BY sort_order, id",
-        )?;
+             ORDER BY id",
+            )
+            .unwrap();
 
-        let rows = stmt.query_map([], map_category)?;
+        let mut rows = stmt.query(params![]).unwrap();
 
-        rows.collect()
+        let mut res = Vec::new();
+        while let Some(row) = rows.next().unwrap() {
+            res.push(Category {
+                id: row.get_unwrap(0),
+                name: row.get_unwrap(1),
+                color: row.get_unwrap(2),
+                enabled: row.get_unwrap(3),
+                sort_order: row.get_unwrap(4),
+            })
+        }
+        res
     }
 
     /// 查询单个分类
@@ -220,43 +228,61 @@ impl CalendarDb {
         category_id: i64,
     ) -> Result<Vec<Event>> {
         self.query_events(
-            "SELECT id, category_id, title, start_time, end_time, description
-             FROM events
-             WHERE category_id = ?1
-             ORDER BY start_time",
+            "SELECT 
+                    id,
+                    category_id,
+                    category_name,
+                    title,
+                    end_date,
+                    start_time,
+                    end_date,
+                    end_time,
+                    color,
+                    all_day,
+                    cal,
+                    description
+                FROM events
+                WHERE category_id = ?1
+                ORDER BY start_date",
             params![category_id],
         )
     }
 
     //根据日期获取经日的事件
     pub fn get_event(&self, date: NaiveDate) -> Vec<Event> {
-        let mut stmt= self.conn.prepare("SELECT id, category_id, title, start_time, end_time, color, description
-                 FROM events
-                 WHERE  start_time <= ?1
-                   AND end_time >= ?1").unwrap();
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT 
+                        id,
+                        category_id,
+                        category_name,
+                        title,
+                        start_date,
+                        start_time,
+                        end_date,
+                        end_time,
+                        color,
+                        all_day,
+                        cal,
+                        description
+                    FROM events
+                    WHERE  start_date <= ?1
+                    AND end_date >= ?1",
+            )
+            .unwrap();
 
         let mut rows = stmt.query(params![date]).unwrap();
 
         let mut res = Vec::new();
         while let Some(row) = rows.next().unwrap() {
-            res.push(Event {
-                id: row.get(0).unwrap(),
-                category_id: row.get(1).unwrap(),
-                category_name: row.get(2).unwrap(),
-                title: row.get(3).unwrap(),
-                start_time: row.get(4).unwrap(),
-                end_time: row.get(5).unwrap(),
-                color: row.get(6).unwrap(),
-                cal: row.get(7).unwrap(),
-                description: row.get(8).unwrap(),
-            })
+            res.push(map_event(row).unwrap())
         }
         res
     }
 
     /// 根据日期和日程 ID 查询单个日程：
-    /// 只要该日期落在 [start_time, end_time] 区间内即算命中；
-    /// end_time 为 NULL 时视为只持续 start_time 当天。
+    /// 只要该日期落在 [start_date, end_date] 区间内即算命中；
     pub fn get_event_by_date(
         &self,
         id: i64,
@@ -264,15 +290,28 @@ impl CalendarDb {
     ) -> Option<Event> {
         self.conn
             .query_row(
-                "SELECT id, category_id, title, start_time, end_time, color, description
-                 FROM events
-                 WHERE id = ?1
-                   AND start_time <= ?2
-                   AND end_time >= ?2",
+                "SELECT 
+                        id,
+                        category_id,
+                        category_name,
+                        title,
+                        start_date,
+                        start_time,
+                        end_date,
+                        end_time,
+                        color,
+                        all_day,
+                        cal,
+                        description
+                    FROM events
+                    WHERE category_id = ?1
+                    AND start_date <= ?2
+                    AND end_date >= ?2",
                 params![id, date],
                 map_event,
             )
-            .optional().unwrap()
+            .optional()
+            .unwrap()
     }
 
     /// 修改日程
@@ -343,14 +382,47 @@ fn map_category(row: &rusqlite::Row<'_>) -> Result<Category> {
 /// 把一行查询结果映射成 Event
 fn map_event(row: &rusqlite::Row<'_>) -> Result<Event> {
     Ok(Event {
-        id: row.get(0).unwrap(),
-        category_id: row.get(1).unwrap(),
-        category_name: row.get(2).unwrap(),
-        title: row.get(3).unwrap(),
-        start_time: row.get(4).unwrap(),
-        end_time: row.get(5).unwrap(),
-        color: row.get(6).unwrap(),
-        cal: row.get(7).unwrap(),
-        description: row.get(8).unwrap(),
+        id: row.get_unwrap(0),
+        category_id: row.get_unwrap(1),
+        category_name: row.get_unwrap(2),
+        title: row.get_unwrap(3),
+        start_date: row.get_unwrap(4),
+        start_time: row.get_unwrap(5),
+        end_date: row.get_unwrap(6),
+        end_time: row.get_unwrap(7),
+        color: row.get_unwrap(8),
+        all_day: row.get_unwrap(9),
+        cal: row.get_unwrap(10),
+        description: row.get_unwrap(11),
     })
+}
+
+#[cfg(test)]
+mod test {
+    use chrono::NaiveDate;
+
+    use crate::backend::CalendarDb;
+
+    #[test]
+    fn test_query() {
+        let db = CalendarDb::new();
+        let cats = db.get_categories();
+        assert_eq!(cats.len(), 3);
+    }
+    #[test]
+    fn test_query_event() {
+        let db = CalendarDb::new();
+        let date = NaiveDate::from_ymd_opt(2026, 10, 15).unwrap();
+        let evens = db.get_event(date);
+        eprintln!("{:?}", evens);
+        assert_eq!(evens.len(), 1);
+    }
+
+    #[test]
+    fn test_query_date() {
+        let db = CalendarDb::new();
+        let date = NaiveDate::from_ymd_opt(2026, 10, 2).unwrap();
+        let evens = db.get_event_by_date(1, date).unwrap();
+        assert_eq!(evens.title, "国庆节");
+    }
 }

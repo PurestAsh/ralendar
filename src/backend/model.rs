@@ -1,4 +1,4 @@
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use rusqlite::types::{
     FromSql, FromSqlError, FromSqlResult, ValueRef,
 };
@@ -24,9 +24,17 @@ pub struct Event {
     pub category_id: i64,
     pub category_name: String,
     pub title: String,
-    pub start_time: NaiveDate,
-    pub end_time: NaiveDate,
+    //时间受全天事件影响
+    //如果是全天事件，则没有时分秒
+    pub start_date: NaiveDate,
+    pub start_time: Option<NaiveTime>,
+
+    pub end_date: NaiveDate,
+    pub end_time: Option<NaiveTime>,
+
     pub color: u32,
+    //是否为全天事件 true:是 false:否
+    pub all_day: bool,
     //目前3个值, 休,班,假。
     pub cal: Cal,
     pub description: Option<String>,

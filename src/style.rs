@@ -12,7 +12,7 @@ use crate::state::State;
 dracula
 
 Background 	    #282a36 	40 42 54 	231° 15% 18% 	#282a36
-Current Line 	#44475a 	68 71 90 	232° 14% 31% 	#44475a
+Current Line 	#686B7F 	68 71 90 	232° 14% 31% 	#44475a
 Selection 	    #44475a 	68 71 90 	232° 14% 31% 	#44475a
 Foreground 	    #f8f8f2 	248 248 242 	60° 30% 96% 	#f8f8f2
 Comment 	    #6272a4 	98 114 164 	225° 27% 51% 	#6272a4
