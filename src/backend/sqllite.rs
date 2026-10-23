@@ -387,9 +387,9 @@ fn map_event(row: &rusqlite::Row<'_>) -> Result<Event> {
         category_name: row.get_unwrap(2),
         title: row.get_unwrap(3),
         start_date: row.get_unwrap(4),
-        start_time: row.get_unwrap(5),
+        start_time: row.get(5).ok(), //可为空
         end_date: row.get_unwrap(6),
-        end_time: row.get_unwrap(7),
+        end_time: row.get(7).ok(), //可为空
         color: row.get_unwrap(8),
         all_day: row.get_unwrap(9),
         cal: row.get_unwrap(10),
