@@ -68,17 +68,19 @@ pub fn title_bar(
     state: &mut State,
     cx: &Context<State>,
 ) -> impl IntoElement {
-    div().w(relative(1.0)).child(
+    div().w_full().child(
         TitleBar::new()
             .flex()
             .gap_1()
             .refine_style(&titlebar_style(cx))
             .child(
-                SidebarToggleButton::new()
-                    .collapsed(state.sidebar_switch())
-                    .on_click(cx.listener(|state, _, _, _| {
-                        state.toggle_sidebar();
-                    })),
+                div().relative().left(px(-6.)).child(
+                    SidebarToggleButton::new()
+                        .collapsed(state.sidebar_switch())
+                        .on_click(cx.listener(|state, _, _, _| {
+                            state.toggle_sidebar();
+                        })),
+                ),
             )
             .child(
                 div()
