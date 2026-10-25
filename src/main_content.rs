@@ -205,7 +205,7 @@ fn day_cell(
     cell
 }
 
-fn month_view(
+pub fn month_view(
     state: &mut State,
     cx: &Context<State>,
 ) -> impl IntoElement {
@@ -475,7 +475,6 @@ pub fn main_content(
 ) -> impl IntoElement {
     div()
         .flex()
-        .flex_row()
         .size_full()
         .bg(cx.theme().background)
         .child(month_view(state, cx))

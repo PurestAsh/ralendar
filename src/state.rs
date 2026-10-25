@@ -2,15 +2,21 @@ use chrono::{Local, NaiveDate};
 use gpui_kit::{
     AppContext, Context, Entity, Subscription, Window,
     base::{CalendarEvent, CalendarState, Date},
+    component::carousel::{CarouselEvent, CarouselState},
 };
 
-use crate::backend::{Backend, CalendarDb};
+use crate::backend::Backend;
 
 pub struct State {
     //按钮控制
     date_switch: [bool; 3],
     //小日历state
     mini_state: Entity<CalendarState>,
+
+    carousel_state: Entity<CarouselState>,
+
+    //月视图当前选择的页面
+    month_view_index: usize,
 
     //subscription
     calendar_subsciption: Subscription,
@@ -32,12 +38,22 @@ pub struct State {
 
 impl State {
     pub fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
-        let e = cx.new(|cx| CalendarState::new(window, cx));
+        let c_state = cx.new(|cx| CalendarState::new(window, cx));
+        let carousel_state = cx.new(|cx| {
+            CarouselState::new(3)
+                .with_selected_index(0)
+                .with_looping(true)
+        });
+
+        let sub_a = Self::calendar_subscribe(&c_state, cx);
+        let sub_b = Self::carousel_subscribe(&carousel_state, cx);
+
         Self {
             date_switch: [false, true, false],
-            calendar_subsciption: Self::calendar_subscribe(&e, cx),
-
-            mini_state: e,
+            calendar_subsciption: Subscription::join(sub_a, sub_b),
+            mini_state: c_state,
+            carousel_state: carousel_state,
+            month_view_index: 1,
             select_date: Local::now().date_naive(),
             today: Local::now().date_naive(),
             schedule_toggle: [true, true, true],
@@ -59,6 +75,17 @@ impl State {
                     println!("Selection cleared");
                 }
             },
+        })
+    }
+
+    fn carousel_subscribe(
+        e: &Entity<CarouselState>,
+        cx: &mut Context<Self>,
+    ) -> Subscription {
+        cx.subscribe(e, |state, _, event, _| {
+            let CarouselEvent::Change(index) = event;
+            state.set_moth_view_index(*index);
+            // cx.notify();
         })
     }
 
@@ -85,6 +112,10 @@ impl State {
 
     pub fn mini_state(&self) -> &Entity<CalendarState> {
         &self.mini_state
+    }
+
+    pub fn carousel_state(&self) -> &Entity<CarouselState> {
+        &self.carousel_state
     }
 
     pub fn select_date(&self) -> &NaiveDate {
@@ -140,5 +171,13 @@ impl State {
 
     pub fn today(&self) -> &NaiveDate {
         &self.today
+    }
+
+    pub fn month_view_index(&self) -> usize {
+        self.month_view_index
+    }
+
+    pub fn set_moth_view_index(&mut self, index: usize) {
+        self.month_view_index += 1;
     }
 }

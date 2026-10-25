@@ -9,6 +9,7 @@ use gpui_kit::{application, assets, init, open_window};
 
 use crate::state::State;
 use crate::ui::ui;
+use test::test;
 mod backend;
 mod icon;
 mod main_content;
@@ -25,8 +26,8 @@ impl Render for State {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
-        ui(self, cx)
-        // test(self)
+        // ui(self, cx)
+        test(self)
     }
 }
 
@@ -46,8 +47,6 @@ pub fn init_theme(cx: &mut App) {
 }
 
 fn main() {
-
-    
     application().with_assets(assets::Assets).run(|cx| {
         init(cx);
         init_theme(cx);
