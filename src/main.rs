@@ -14,7 +14,7 @@ use test::test;
 mod backend;
 mod dialog;
 mod icon;
-mod main_content;
+mod date_view;
 mod side_bar;
 mod state;
 mod style;

@@ -9,8 +9,8 @@ use gpui::{
 };
 
 use crate::{
+    date_view::main_content,
     icon::mini,
-    main_content::main_content,
     side_bar::sidebar,
     state::State,
     style::{global_style, sidebar_style},

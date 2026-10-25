@@ -136,6 +136,9 @@ fn day_cell(
         )
         .overflow_hidden();
 
+    if is_today {
+        bg = cx.theme().primary.opacity(0.14);
+    }
     if is_selected {
         bg = cx.theme().primary.opacity(0.14);
         cell = cell.border_color(cx.theme().primary);

@@ -33,7 +33,7 @@ pub fn sidebar(
                 .w_full()
                 .flex()
                 .flex_col()
-                .child(div().p_2().child("春秋日历"))
+                .child(div().p_2().child("Talendar"))
                 .child(
                     // 日历的日期格是 rem 尺寸（每个 2rem），全局字号调大后
                     // 固定 248px 的默认宽度已经装不下一周了。这里按 7 个
