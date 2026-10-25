@@ -4,6 +4,7 @@ use gpui_kit::{
 
 use crate::state::State;
 
+mod day_view;
 mod month_view;
 mod year_view;
 
@@ -17,6 +18,8 @@ pub fn main_content(
 
     if state.year_check() {
         content = content.child(year_view::year_view(state, cx));
+    } else if state.day_check() {
+        content = content.child(day_view::day_view(state, cx));
     } else {
         content = content
             .child(month_view::main_content(state, cx, window));
