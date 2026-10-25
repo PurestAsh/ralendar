@@ -11,6 +11,7 @@ use gpui_kit::{
     relative,
 };
 
+use crate::dialog::new_event;
 use crate::style::titlebar_style;
 
 use crate::state::State;
@@ -172,6 +173,9 @@ pub fn title_bar(
                     .ghost()
                     .primary()
                     .size(px(25.))
+                    .on_click(|e, w, app| {
+                        new_event(w, app);
+                    })
                     .icon(IconName::Plus),
             ),
     )

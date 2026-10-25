@@ -451,19 +451,6 @@ fn detail(
         body = body.child(list);
     }
 
-    // ---------- 底部：为这一天添加日程 ----------
-    let foot =
-        div().p_3().border_t_1().border_color(theme.border).child(
-            Button::new("add-here")
-                .primary()
-                .w_full()
-                .on_click(|e, w, app| {
-                    new_event(w, app);
-                })
-                .icon(IconName::Plus)
-                .child("在这一天添加日程"),
-        );
-
     v_flex()
         .h_full()
         .w(px(220.))
@@ -472,7 +459,7 @@ fn detail(
         .border_color(theme.border)
         .child(head)
         .child(body)
-        .child(foot)
+        // .child(foot)
 }
 
 pub fn main_content(
