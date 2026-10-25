@@ -11,7 +11,7 @@ use gpui_kit::{
     },
     div,
     prelude::FluentBuilder,
-    px, relative,
+    px, relative, rems,
 };
 
 use gpui_kit as gpui;
@@ -23,20 +23,28 @@ pub fn sidebar(
     cx: &Context<State>,
 ) -> impl IntoElement {
     Sidebar::new(0)
+        .w(px(288.))
         .h(relative(1.0))
         .border_r_1()
         .collapsible(SidebarCollapsible::Offcanvas)
         .collapsed(state.sidebar_switch())
         .header(
             div()
-                .relative()
+                .w_full()
+                .flex()
+                .flex_col()
                 .child(div().p_2().child("春秋日历"))
                 .child(
-                    Calendar::new(state.mini_state())
-                        .p_2()
-                        .relative()
-                        .left_neg_2()
-                        .border_0(),
+                    // 日历的日期格是 rem 尺寸（每个 2rem），全局字号调大后
+                    // 固定 248px 的默认宽度已经装不下一周了。这里按 7 个
+                    // 日期格计算宽度，并在侧边栏里整体居中。
+                    div().w_full().flex().justify_center().child(
+                        Calendar::new(state.mini_state())
+                            .w(rems(14.0))
+                            .px(px(0.))
+                            .py_2()
+                            .border_0(),
+                    ),
                 ),
         )
         .child(

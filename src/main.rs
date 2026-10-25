@@ -7,10 +7,12 @@ use gpui_kit::{
 };
 use gpui_kit::{application, assets, init, open_window};
 
+use crate::dialog::new_event;
 use crate::state::State;
 use crate::ui::ui;
 use test::test;
 mod backend;
+mod dialog;
 mod icon;
 mod main_content;
 mod side_bar;
@@ -19,15 +21,14 @@ mod style;
 mod test;
 mod title_bar;
 mod ui;
-
 impl Render for State {
     fn render(
         &mut self,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
-        // ui(self, cx)
-        test(self)
+        ui(self, cx, window)
+        // test(self)
     }
 }
 
@@ -50,6 +51,8 @@ fn main() {
     application().with_assets(assets::Assets).run(|cx| {
         init(cx);
         init_theme(cx);
+     
+     
         gpui_kit::component::set_locale("zh-CN");
 
         open_window(

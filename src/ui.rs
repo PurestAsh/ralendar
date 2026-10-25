@@ -1,5 +1,5 @@
 use gpui_kit::{
-    self as gpui, Context, InteractiveElement,
+    self as gpui, Context, InteractiveElement, Window,
     base::{StyledExt, v_flex},
     px, relative,
 };
@@ -20,6 +20,7 @@ use crate::{
 pub fn ui(
     state: &mut State,
     cx: &Context<State>,
+    window: &mut Window,
 ) -> impl IntoElement {
     div()
         .refine_style(&global_style(cx))
@@ -38,7 +39,7 @@ pub fn ui(
                         .w_full()
                         .flex_1()
                         .min_h(px(0.))
-                        .child(main_content(state, cx)),
+                        .child(main_content(state, cx, window)),
                 ),
         )
 }

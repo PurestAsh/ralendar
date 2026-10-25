@@ -53,7 +53,7 @@ impl State {
             calendar_subsciption: Subscription::join(sub_a, sub_b),
             mini_state: c_state,
             carousel_state: carousel_state,
-            month_view_index: 1,
+            month_view_index: 0,
             select_date: Local::now().date_naive(),
             today: Local::now().date_naive(),
             schedule_toggle: [true, true, true],
@@ -82,10 +82,12 @@ impl State {
         e: &Entity<CarouselState>,
         cx: &mut Context<Self>,
     ) -> Subscription {
-        cx.subscribe(e, |state, _, event, _| {
+        cx.subscribe(e, |state, _, event, cx| {
             let CarouselEvent::Change(index) = event;
-            state.set_moth_view_index(*index);
-            // cx.notify();
+            if state.month_view_index != *index {
+                state.set_month_view_index(*index);
+                cx.notify();
+            }
         })
     }
 
@@ -177,7 +179,7 @@ impl State {
         self.month_view_index
     }
 
-    pub fn set_moth_view_index(&mut self, index: usize) {
-        self.month_view_index += 1;
+    pub fn set_month_view_index(&mut self, index: usize) {
+        self.month_view_index = index;
     }
 }

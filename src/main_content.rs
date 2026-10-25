@@ -2,10 +2,10 @@ use chrono::{Datelike, Duration, Local, NaiveDate};
 
 use gpui_kit::{
     Context, Hsla, InteractiveElement, IntoElement, ParentElement,
-    Styled,
+    Styled, Window,
     base::{StyledExt, h_flex, v_flex},
     component::{
-        ActiveTheme, IconName, Theme,
+        ActiveTheme, IconName, Theme, WindowExt,
         button::{Button, ButtonVariants},
     },
     div, px, rgb,
@@ -13,6 +13,7 @@ use gpui_kit::{
 
 use crate::{
     backend::{Cal, Event},
+    dialog::new_event,
     state::State,
 };
 
@@ -135,10 +136,8 @@ fn day_cell(
         )
         .overflow_hidden();
 
-    if is_today {
+    if is_selected {
         bg = cx.theme().primary.opacity(0.14);
-        cell = cell.border_color(cx.theme().primary);
-    } else if is_selected {
         cell = cell.border_color(cx.theme().primary);
     }
     cell = cell.bg(bg);
@@ -255,10 +254,11 @@ pub fn month_view(
 fn detail(
     state: &mut State,
     cx: &Context<State>,
+    window: &mut Window,
 ) -> impl IntoElement {
     let theme = cx.theme();
     let is_today = state.is_today();
-    let date= *state.select_date();
+    let date = *state.select_date();
 
     // ---------- 头部：日期、星期与假期标签 ----------
     let mut tags: Vec<gpui_kit::AnyElement> = Vec::new();
@@ -454,6 +454,9 @@ fn detail(
             Button::new("add-here")
                 .primary()
                 .w_full()
+                .on_click(|e, w, app| {
+                    new_event(w, app);
+                })
                 .icon(IconName::Plus)
                 .child("在这一天添加日程"),
         );
@@ -472,13 +475,14 @@ fn detail(
 pub fn main_content(
     state: &mut State,
     cx: &Context<State>,
+    window: &mut Window,
 ) -> impl IntoElement {
     div()
         .flex()
         .size_full()
         .bg(cx.theme().background)
         .child(month_view(state, cx))
-        .child(detail(state, cx))
+        .child(detail(state, cx, window))
 }
 
 pub fn in_holiday(state: &State) -> Option<(i64, i64, String)> {
