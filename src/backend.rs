@@ -46,4 +46,13 @@ impl Backend {
     pub fn get_event(&self, date: NaiveDate) -> Vec<Event> {
         self.db.get_event(date)
     }
+
+    /// 查询与日期区间有交集的全部日程（start 包含，end 不包含）。
+    pub fn get_events_between(
+        &self,
+        start: NaiveDate,
+        end: NaiveDate,
+    ) -> Vec<Event> {
+        self.db.get_events_between(start, end)
+    }
 }

@@ -248,6 +248,45 @@ impl CalendarDb {
         )
     }
 
+    /// 查询与某个日期区间有交集的全部日程。
+    /// `start` 包含，`end` 不包含。
+    pub fn get_events_between(
+        &self,
+        start: NaiveDate,
+        end: NaiveDate,
+    ) -> Vec<Event> {
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT
+                        id,
+                        category_id,
+                        category_name,
+                        title,
+                        start_date,
+                        start_time,
+                        end_date,
+                        end_time,
+                        color,
+                        all_day,
+                        cal,
+                        description
+                    FROM events
+                    WHERE start_date < ?2
+                    AND end_date >= ?1
+                    ORDER BY start_date",
+            )
+            .unwrap();
+
+        let mut rows = stmt.query(params![start, end]).unwrap();
+
+        let mut res = Vec::new();
+        while let Some(row) = rows.next().unwrap() {
+            res.push(map_event(row).unwrap())
+        }
+        res
+    }
+
     //根据日期获取经日的事件
     pub fn get_event(&self, date: NaiveDate) -> Vec<Event> {
         let mut stmt = self
