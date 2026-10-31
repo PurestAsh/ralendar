@@ -27,8 +27,8 @@ impl Render for State {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
-        ui(self, cx, window)
-        // test(self)
+        // ui(self, cx, window)
+        test(self)
     }
 }
 

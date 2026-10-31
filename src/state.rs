@@ -1,8 +1,15 @@
 use chrono::{Local, NaiveDate};
 use gpui_kit::{
     AppContext, Context, Entity, Subscription, Window,
-    base::{CalendarEvent, CalendarState, Date},
-    component::carousel::{CarouselEvent, CarouselState},
+    base::{
+        CalendarEvent, CalendarState, Date, IndexPath, TimePrecision,
+        input::{InputState, TextareaState},
+    },
+    component::{
+        carousel::{CarouselEvent, CarouselState},
+        date_picker::DatePickerState,
+        select::SelectState,
+    },
 };
 
 use crate::backend::Backend;
@@ -34,6 +41,59 @@ pub struct State {
     sidebar_switch: bool,
 
     backend: Backend,
+
+    //新建日程打开的状态
+    new_event_state: NewEventState,
+}
+
+//新建日程dialog的一些状态。
+//Entity就是一个Arc智能指针，可以随便clone.
+pub struct NewEventState {
+    calendar: Entity<SelectState<Vec<String>>>,
+    title: Entity<InputState>,
+    all_day: Entity<bool>,
+    start_time: Entity<DatePickerState>,
+    end_time: Entity<DatePickerState>,
+    description: Entity<TextareaState>,
+    color: u32,
+}
+
+impl NewEventState {
+    fn new(window: &mut Window, cx: &mut Context<State>) -> Self {
+        Self {
+            calendar: cx.new(|cx| {
+                SelectState::new(
+                    vec![
+                        "Apple".to_string(),
+                        "Orange".to_string(),
+                        "Banana".to_string(),
+                    ],
+                    Some(IndexPath::default()), // Select first item
+                    window,
+                    cx,
+                )
+            }),
+            title: cx.new(|cx| {
+                InputState::new(window, cx).placeholder("标题")
+            }),
+            all_day: cx.new(|_| true),
+            start_time: cx.new(|cx| {
+                DatePickerState::new(window, cx)
+                    .time_precision(TimePrecision::Minute)
+            }),
+            end_time: cx.new(|cx| {
+                DatePickerState::new(window, cx)
+                    .time_precision(TimePrecision::Minute)
+            }),
+            description: cx.new(|cx| {
+                TextareaState::new(window, cx)
+                    .placeholder("详细描述")
+                    .rows(1)
+                    .auto_grow(1, 3)
+            }),
+            color: 0x55B4D4,
+        }
+    }
 }
 
 impl State {
@@ -59,6 +119,7 @@ impl State {
             schedule_toggle: [true, true, true],
             sidebar_switch: false,
             backend: Backend::new(),
+            new_event_state: NewEventState::new(window, cx),
         }
     }
 
@@ -181,5 +242,51 @@ impl State {
 
     pub fn set_month_view_index(&mut self, index: usize) {
         self.month_view_index = index;
+    }
+
+    pub fn calendar_state(
+        &self,
+    ) -> &Entity<SelectState<Vec<String>>> {
+        &self.new_event_state.calendar
+    }
+
+    pub fn title_state(&self) -> &Entity<InputState> {
+        &self.new_event_state.title
+    }
+
+    pub fn title_state_clone(&self) -> Entity<InputState> {
+        self.new_event_state.title.clone()
+    }
+
+    pub fn start_time_state(&self) -> &Entity<DatePickerState> {
+        &self.new_event_state.start_time
+    }
+
+    pub fn start_time_state_clone(&self) -> Entity<DatePickerState> {
+        self.new_event_state.start_time.clone()
+    }
+
+    pub fn end_time_state(&self) -> &Entity<DatePickerState> {
+        &self.new_event_state.end_time
+    }
+
+    pub fn end_time_stat_clone(&self) -> Entity<DatePickerState> {
+        self.new_event_state.end_time.clone()
+    }
+
+    pub fn description_state(&self) -> &Entity<TextareaState> {
+        &self.new_event_state.description
+    }
+
+    pub fn description_state_clone(&self) -> Entity<TextareaState> {
+        self.new_event_state.description.clone()
+    }
+
+    pub fn all_day(&self) -> &Entity<bool> {
+        &self.new_event_state.all_day
+    }
+
+    pub fn all_day_clone(&self) -> Entity<bool> {
+        self.new_event_state.all_day.clone()
     }
 }

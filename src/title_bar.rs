@@ -1,14 +1,13 @@
 use chrono::{Datelike, Duration, NaiveDate};
-use gpui_kit::base::{StyledExt, h_flex};
+use gpui_kit::base::StyledExt;
 use gpui_kit::component::button::{
     Button, ButtonVariants, Toggle, ToggleGroup,
 };
 use gpui_kit::component::sidebar::SidebarToggleButton;
 use gpui_kit::component::{ActiveTheme, IconName};
-use gpui_kit::{self as gpui, Context, px, size};
+use gpui_kit::{Context, px};
 use gpui_kit::{
     IntoElement, ParentElement, Styled, component::TitleBar, div,
-    relative,
 };
 
 use crate::dialog::new_event;
@@ -69,6 +68,7 @@ pub fn title_bar(
     state: &mut State,
     cx: &Context<State>,
 ) -> impl IntoElement {
+
     div().w_full().child(
         TitleBar::new()
             .flex()
@@ -173,9 +173,11 @@ pub fn title_bar(
                     .ghost()
                     .primary()
                     .size(px(25.))
-                    .on_click(|e, w, app| {
-                        new_event(w, app);
-                    })
+                    .on_click(cx.listener(
+                        |state, _, window, cx| {
+                            new_event(state,window,cx);
+                        },
+                    ))
                     .icon(IconName::Plus),
             ),
     )
