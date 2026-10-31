@@ -88,8 +88,7 @@ impl NewEventState {
             description: cx.new(|cx| {
                 TextareaState::new(window, cx)
                     .placeholder("详细描述")
-                    .rows(1)
-                    .auto_grow(1, 3)
+                    .rows(4)
             }),
             color: 0x55B4D4,
         }

@@ -2,7 +2,7 @@ use gpui_kit::{
     Context, IntoElement, ParentElement, Styled, Window,
     base::{h_flex, v_flex},
     component::{
-        WindowExt,
+        Sizable, Size, WindowExt,
         button::{Button, ButtonVariants},
         date_picker::DatePicker,
         input::{Input, Textarea},
@@ -12,7 +12,7 @@ use gpui_kit::{
     prelude::FluentBuilder,
 };
 
-use crate::state::State;
+use crate::{ext::DatePickerAtBaseRem, state::State};
 
 pub fn new_event(
     state: &mut State,
@@ -31,7 +31,8 @@ pub fn new_event(
             .title("新建日程")
             .child(
                 v_flex()
-                    .gap_2()
+                    .mt_4()
+                    .gap_4()
                     .child(Input::new(&title_state))
                     .child(
                         h_flex()
@@ -48,9 +49,13 @@ pub fn new_event(
                                     ),
                             ),
                     )
-                    .child(DatePicker::new(&start_time_state))
+                    .child(DatePickerAtBaseRem(
+                        start_time_state.clone(),
+                    ))
                     .when(!is_all_day, |this| {
-                        this.child(DatePicker::new(&end_time_state))
+                        this.child(DatePickerAtBaseRem(
+                            end_time_state.clone(),
+                        ))
                     })
                     .child(Textarea::new(&description_state)),
             )

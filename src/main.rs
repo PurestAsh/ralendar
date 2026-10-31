@@ -12,9 +12,10 @@ use crate::state::State;
 use crate::ui::ui;
 use test::test;
 mod backend;
-mod dialog;
-mod icon;
 mod date_view;
+mod dialog;
+mod ext;
+mod icon;
 mod side_bar;
 mod state;
 mod style;
@@ -27,8 +28,8 @@ impl Render for State {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
-        // ui(self, cx, window)
-        test(self)
+        ui(self, cx, window)
+        // test(self)
     }
 }
 
@@ -51,8 +52,7 @@ fn main() {
     application().with_assets(assets::Assets).run(|cx| {
         init(cx);
         init_theme(cx);
-     
-     
+
         gpui_kit::component::set_locale("zh-CN");
 
         open_window(
