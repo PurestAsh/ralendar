@@ -1,4 +1,4 @@
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveTime};
 use rusqlite::{Connection, OptionalExtension, Result, params};
 use xdg::BaseDirectories;
 
@@ -172,17 +172,43 @@ impl CalendarDb {
     /// 新增日程，返回新日程的 ID
     pub fn add_event(
         &self,
-        category_id: i64,
+        category_id: u32,
+        category_name: String,
         title: &str,
-        start_time: NaiveDate,
-        end_time: Option<NaiveDate>,
+        start_date: NaiveDate,
+        start_time: Option<NaiveTime>,
+        end_date: NaiveDate,
+        end_time: Option<NaiveTime>,
+        color: u32,
+        cal: u8,
         description: Option<&str>,
     ) -> Result<i64> {
         self.conn.execute(
-            "INSERT INTO events
-                (category_id, title, start_time, end_time, description)
-             VALUES (?1, ?2, ?3, ?4, ?5)",
-            params![category_id, title, start_time, end_time, description],
+            "INSERT INTO events(
+                    category_id,
+                    category_name,
+                    title,
+                    start_date,
+                    start_time,
+                    end_date,
+                    end_time,
+                    color,
+                    all_day,
+                    cal,
+                    description)
+             VALUES (?1, ?2, ?3, ?4, ?5,?6,?7,?8,?9,?10,?11)",
+            params![
+                category_id,
+                category_name,
+                title,
+                start_date,
+                start_time,
+                end_date,
+                end_time,
+                color,
+                cal,
+                description
+            ],
         )?;
 
         Ok(self.conn.last_insert_rowid())

@@ -9,7 +9,10 @@ use gpui_kit::{
     div, px, rgb,
 };
 
-use crate::{backend::Event, state::State};
+use crate::{
+    backend::{Backend, Event},
+    state::State,
+};
 
 /// 年视图里每个月的星期表头，从周一开始。
 const WEEKDAYS: [&str; 7] =
@@ -239,13 +242,14 @@ pub fn year_view(
     state: &mut State,
     cx: &Context<State>,
 ) -> impl IntoElement {
+    let backend = cx.global::<Backend>();
     let theme = cx.theme();
     let year = state.select_date().year();
     let today = *state.today();
     let selected = *state.select_date();
 
     let marks = collect_marks(
-        state.backend().get_events_between(
+        backend.get_events_between(
             NaiveDate::from_ymd_opt(year, 1, 1)
                 .expect("invalid year"),
             NaiveDate::from_ymd_opt(year + 1, 1, 1)

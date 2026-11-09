@@ -15,13 +15,17 @@ impl RenderOnce for DatePickerAtBaseRem {
         _: &mut App,
     ) -> impl IntoElement {
         let previous_rem_size = window.rem_size();
-        window.set_rem_size(px(18.));
+        window.set_rem_size(px(16.));
 
         div()
             .size_full()
             .on_prepaint(move |_, window, _| {
                 window.set_rem_size(previous_rem_size)
             })
-            .child(DatePicker::new(&self.0).appearance(true))
+            .child(
+                DatePicker::new(&self.0)
+                    .appearance(true)
+                    .placeholder("开始时间"),
+            )
     }
 }

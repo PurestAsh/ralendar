@@ -40,8 +40,6 @@ pub struct State {
     //侧边栏开关
     sidebar_switch: bool,
 
-    backend: Backend,
-
     //新建日程打开的状态
     new_event_state: NewEventState,
 }
@@ -117,7 +115,6 @@ impl State {
             today: Local::now().date_naive(),
             schedule_toggle: [true, true, true],
             sidebar_switch: false,
-            backend: Backend::new(),
             new_event_state: NewEventState::new(window, cx),
         }
     }
@@ -223,10 +220,6 @@ impl State {
         self.sidebar_switch
     }
 
-    pub fn backend(&self) -> &Backend {
-        &self.backend
-    }
-
     pub fn is_today(&self) -> bool {
         self.select_date == self.today
     }
@@ -247,6 +240,12 @@ impl State {
         &self,
     ) -> &Entity<SelectState<Vec<String>>> {
         &self.new_event_state.calendar
+    }
+
+    pub fn calendar_state_clone(
+        &self,
+    ) -> Entity<SelectState<Vec<String>>> {
+        self.new_event_state.calendar.clone()
     }
 
     pub fn title_state(&self) -> &Entity<InputState> {

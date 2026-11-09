@@ -7,6 +7,7 @@ use gpui_kit::{
 };
 use gpui_kit::{application, assets, init, open_window};
 
+use crate::backend::Backend;
 use crate::dialog::new_event;
 use crate::state::State;
 use crate::ui::ui;
@@ -48,10 +49,15 @@ pub fn init_theme(cx: &mut App) {
     .unwrap()
 }
 
+fn init_global(cx: &mut App) {
+    cx.set_global(Backend::new());
+}
+
 fn main() {
     application().with_assets(assets::Assets).run(|cx| {
         init(cx);
         init_theme(cx);
+        init_global(cx);
 
         gpui_kit::component::set_locale("zh-CN");
 

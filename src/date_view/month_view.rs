@@ -12,7 +12,7 @@ use gpui_kit::{
 };
 
 use crate::{
-    backend::{Cal, Event},
+    backend::{Backend, Cal, Event},
     dialog::new_event,
     state::State,
 };
@@ -106,6 +106,8 @@ fn day_cell(
     cx: &Context<State>,
     date: NaiveDate,
 ) -> impl IntoElement {
+    let backend = cx.global::<Backend>();
+
     let is_weekend =
         matches!(date.weekday().num_days_from_monday(), 5 | 6);
     let is_outside = date.month() != state.select_date().month();
@@ -172,7 +174,7 @@ fn day_cell(
         number = number.bg(cx.theme().primary);
     }
 
-    let events = state.backend().get_event(date);
+    let events = backend.get_event(date);
 
     let mut top = h_flex()
         .w_full()
@@ -259,6 +261,8 @@ fn detail(
     cx: &Context<State>,
     window: &mut Window,
 ) -> impl IntoElement {
+    let backend = cx.global::<Backend>();
+
     let theme = cx.theme();
     let is_today = state.is_today();
     let date = *state.select_date();
@@ -281,7 +285,7 @@ fn detail(
         );
     }
 
-    let in_holiday = in_holiday(state);
+    let in_holiday = in_holiday(state, backend);
     if let Some((index, period, title)) = in_holiday {
         tags.push(
             tag(
@@ -348,7 +352,7 @@ fn detail(
         )
         .child(h_flex().flex_wrap().gap_1p5().children(tags));
 
-    let events = state.backend().get_event(date);
+    let events = backend.get_event(date);
 
     let mut body = v_flex()
         .flex_1()
@@ -459,7 +463,7 @@ fn detail(
         .border_color(theme.border)
         .child(head)
         .child(body)
-        // .child(foot)
+    // .child(foot)
 }
 
 pub fn main_content(
@@ -475,9 +479,12 @@ pub fn main_content(
         .child(detail(state, cx, window))
 }
 
-pub fn in_holiday(state: &State) -> Option<(i64, i64, String)> {
+pub fn in_holiday(
+    state: &State,
+    backend: &Backend,
+) -> Option<(i64, i64, String)> {
     let date = *state.select_date();
-    let event = state.backend().get_event_by_date(1, date);
+    let event = backend.get_event_by_date(1, date);
 
     event.map(|event| {
         let start_date = event.start_date;

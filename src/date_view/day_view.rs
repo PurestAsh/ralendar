@@ -7,7 +7,10 @@ use gpui_kit::{
     div, px, relative, rgb,
 };
 
-use crate::{backend::Event, state::State};
+use crate::{
+    backend::{Backend, Event},
+    state::State,
+};
 
 use super::month_view::in_holiday;
 
@@ -430,10 +433,12 @@ pub fn day_view(
     state: &mut State,
     cx: &Context<State>,
 ) -> impl IntoElement {
+    let backend = cx.global::<Backend>();
+
     let theme = cx.theme();
     let date = *state.select_date();
     let today = Local::now().date_naive();
-    let events = state.backend().get_event(date);
+    let events = backend.get_event(date);
 
     // 有开始时间的进时间轴，其余（节假日、全天日程）进顶部栏。
     let mut all_day: Vec<&Event> = Vec::new();
@@ -460,7 +465,7 @@ pub fn day_view(
             date,
             today,
             events.len(),
-            in_holiday(state),
+            in_holiday(state, backend),
             theme,
         ));
 
