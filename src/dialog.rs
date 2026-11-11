@@ -1,15 +1,13 @@
-use core::time;
-
 use gpui_kit::{
     App, AppContext, Context, Entity, IntoElement, ParentElement,
-    Styled, Window,
+    Render, Styled, Window,
     base::{
-        ElementExt, h_flex,
+        ElementExt, IndexPath, TimePrecision, h_flex,
         input::{InputState, TextareaState},
         v_flex,
     },
     component::{
-        Sizable, Size, WindowExt,
+        WindowExt,
         button::{Button, ButtonVariants},
         date_picker::{DatePicker, DatePickerState},
         input::{Input, Textarea},
@@ -21,73 +19,15 @@ use gpui_kit::{
     px,
 };
 
-use crate::{
-    backend::Backend, ext::DatePickerAtBaseRem, state::State,
-};
+use crate::backend::Backend;
 
-pub fn new_event(
-    state: &mut State,
-    window: &mut Window,
-    cx: &mut Context<State>,
-) {
-    let calendar_state = state.calendar_state_clone();
-    let title_state = state.title_state_clone();
-    let all_day = state.all_day_clone();
-    let start_time_state = state.start_time_state_clone();
-    let end_time_state = state.end_time_stat_clone();
-    let description_state = state.description_state_clone();
-
-    window.open_dialog(cx, move |dialog, window, app| {
-        let all_day_clone = all_day.clone();
-        let is_all_day = *all_day.read(app);
-
-        let calendar = calendar_state.clone();
-        let title = title_state.clone();
-        let start_time = start_time_state.clone();
-        let end_time = end_time_state.clone();
-        let descc_state = description_state.clone();
+pub fn new_event(window: &mut Window, cx: &mut App) {
+    let new_event_panel = cx.new(|cx| NewEventPanel::new(cx, window));
+    window.open_dialog(cx, move |dialog, _, _| {
+        let panel_clone = new_event_panel.clone();
         dialog
             .title("新建日程")
-            .child(
-                v_flex()
-                    .mt_4()
-                    .gap_4()
-                    .child(
-                        h_flex()
-                            .justify_between()
-                            .child("日历")
-                            .child(Select::new(&calendar_state)),
-                    )
-                    .child(Input::new(&title_state))
-                    .child(
-                        h_flex()
-                            .justify_between()
-                            .child("全天事件")
-                            .child(
-                                Switch::new("all_day_switch")
-                                    .checked(is_all_day)
-                                    .on_change(
-                                        move |&checkedd, _, app| {
-                                            all_day_clone
-                                                .write(app, checkedd);
-                                        },
-                                    ),
-                            ),
-                    )
-                    .child(time_select(
-                        window,
-                        &start_time_state,
-                        "开始时间",
-                    ))
-                    .when(!is_all_day, |this| {
-                        this.child(time_select(
-                            window,
-                            &end_time_state,
-                            "结束时间",
-                        ))
-                    })
-                    .child(Textarea::new(&description_state)),
-            )
+            .child(new_event_panel.clone())
             .footer(
                 h_flex()
                     .gap_2()
@@ -103,17 +43,10 @@ pub fn new_event(
                         Button::new("ok")
                             .primary()
                             .label("保存")
-                            .on_click(move |e, window, app| {
-                                save_event(
-                                    &calendar,
-                                    &title,
-                                    is_all_day,
-                                    &start_time,
-                                    &end_time,
-                                    &descc_state,
-                                    app,
-                                );
-                                window.close_dialog(app);
+                            .on_click(move |_, window, cx| {
+                                panel_clone.read(cx).save(cx);
+
+                                window.close_dialog(cx);
                             }),
                     ),
             )
@@ -142,35 +75,121 @@ fn time_select(
         )
 }
 
-fn save_event(
-    calendar: &Entity<SelectState<Vec<String>>>,
-    title: &Entity<InputState>,
+/// 新建日程表单UI
+struct NewEventPanel {
+    //属于哪个日历
+    calendar: Entity<SelectState<Vec<String>>>,
+    //标题
+    title: Entity<InputState>,
+    //是否是全天事件
     all_day: bool,
-    start_time: &Entity<DatePickerState>,
-    end_time: &Entity<DatePickerState>,
-    desc: &Entity<TextareaState>,
-    app: &mut App,
-) {
-    let db = app.global::<Backend>();
-    let c = calendar.read(app);
-    let calendar_index = c.selected_index(app).unwrap().row + 1;
-    let calendar = c.selected_value().unwrap().clone();
-    let title = title.read(app).content().text().to_string();
+    //开始时间
+    start_time: Entity<DatePickerState>,
+    //结束时间
+    end_time: Entity<DatePickerState>,
+    //详细描述
+    desc: Entity<TextareaState>,
+}
 
-    let start_time = start_time.read(app).date_time();
-    let description = desc.read(app).content().text().to_string();
-    println!("desc:{}", description);
-    db.save_event(
-        calendar_index as u32,
-        calendar,
-        title,
-        all_day,
-        start_time,
-        if all_day {
-            start_time
-        } else {
-            end_time.read(app).date_time()
-        },
-        description,
-    );
+impl NewEventPanel {
+    fn new(cx: &mut Context<Self>, window: &mut Window) -> Self {
+        let categeries = cx.global::<Backend>();
+        let cats = categeries.get_cats_name();
+
+        Self {
+            calendar: cx.new(|cx| {
+                SelectState::new(
+                    cats,
+                    Some(IndexPath::default()), // Select first item
+                    window,
+                    cx,
+                )
+            }),
+            title: cx.new(|cx| {
+                InputState::new(window, cx).placeholder("标题")
+            }),
+            all_day: true,
+            start_time: cx.new(|cx| {
+                DatePickerState::new(window, cx)
+                    .time_precision(TimePrecision::Minute)
+            }),
+            end_time: cx.new(|cx| {
+                DatePickerState::new(window, cx)
+                    .time_precision(TimePrecision::Minute)
+            }),
+            desc: cx.new(|cx| {
+                TextareaState::new(window, cx)
+                    .placeholder("详细描述")
+                    .rows(4)
+            }),
+        }
+    }
+
+    fn save(&self, app: &App) {
+        let db = app.global::<Backend>();
+        let calendar_state = self.calendar.read(app);
+        let calendar_index =
+            calendar_state.selected_index(app).unwrap().row + 1;
+        let calendar_name =
+            calendar_state.selected_value().unwrap().clone();
+        let title = self.title.read(app).content().text().to_string();
+
+        let start_time = self.start_time.read(app).date_time();
+        let description =
+            self.desc.read(app).content().text().to_string();
+        println!("desc:{}", description);
+        db.save_event(
+            calendar_index as u32,
+            calendar_name,
+            title,
+            self.all_day,
+            start_time,
+            if self.all_day {
+                start_time
+            } else {
+                self.end_time.read(app).date_time()
+            },
+            description,
+        );
+    }
+}
+
+impl Render for NewEventPanel {
+    fn render(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        v_flex()
+            .mt_4()
+            .gap_4()
+            .child(
+                h_flex()
+                    .justify_between()
+                    .gap_5()
+                    .child("所属日历")
+                    .child(Select::new(&self.calendar)),
+            )
+            .child(Input::new(&self.title))
+            .child(
+                h_flex().justify_between().child("全天事件").child(
+                    Switch::new("all_day_switch")
+                        .checked(self.all_day)
+                        .on_change(cx.listener(
+                            |form, checked, _, _| {
+                                form.all_day = *checked;
+                            },
+                        )),
+                ),
+            )
+            .child(time_select(window, &self.start_time, "开始时间"))
+            .when(!self.all_day, |this| {
+                this.child(time_select(
+                    window,
+                    &self.end_time,
+                    "结束时间",
+                ))
+            })
+            .child(Textarea::new(&self.desc))
+    }
 }

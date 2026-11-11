@@ -1,10 +1,7 @@
 use gpui_kit::component::ActiveTheme;
-use gpui_kit::{
-    self as gpui, Context, Corners, CornersRefinement,
-    TextStyleRefinement, rgb,
-};
-use gpui_kit::{AbsoluteLength, px};
-use gpui_kit::{BorderStyle, StyleRefinement};
+use gpui_kit::{Context, TextStyleRefinement};
+
+use gpui_kit::StyleRefinement;
 
 use crate::state::State;
 
@@ -42,15 +39,6 @@ pub fn titlebar_style(cx: &Context<State>) -> StyleRefinement {
             ..Default::default()
         },
         background: Some(cx.theme().background.into()),
-        ..Default::default()
-    }
-}
-
-//侧边栏顶级div
-pub fn sidebar_style(cx: &Context<State>) -> StyleRefinement {
-    StyleRefinement {
-        background: Some(cx.theme().background.into()),
-        border_color: Some(cx.theme().background),
         ..Default::default()
     }
 }

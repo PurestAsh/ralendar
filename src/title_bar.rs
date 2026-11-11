@@ -68,7 +68,6 @@ pub fn title_bar(
     state: &mut State,
     cx: &Context<State>,
 ) -> impl IntoElement {
-
     div().w_full().child(
         TitleBar::new()
             .flex()
@@ -173,11 +172,9 @@ pub fn title_bar(
                     .ghost()
                     .primary()
                     .size(px(25.))
-                    .on_click(cx.listener(
-                        |state, _, window, cx| {
-                            new_event(state,window,cx);
-                        },
-                    ))
+                    .on_click(|_, window, cx| {
+                        new_event(window, cx);
+                    })
                     .icon(IconName::Plus),
             ),
     )

@@ -4,17 +4,11 @@ use gpui_kit::{
     px, relative,
 };
 
-use gpui::{
-    IntoElement, ParentElement, Styled, component::TitleBar, div,
-};
+use gpui::{IntoElement, ParentElement, Styled, div};
 
 use crate::{
-    date_view::main_content,
-    icon::mini,
-    side_bar::sidebar,
-    state::State,
-    style::{global_style, sidebar_style},
-    title_bar::title_bar,
+    date_view::main_content, side_bar::sidebar, state::State,
+    style::global_style, title_bar::title_bar,
 };
 
 pub fn ui(

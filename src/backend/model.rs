@@ -1,10 +1,11 @@
-use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
+use chrono::{NaiveDate, NaiveTime};
 use rusqlite::types::{
     FromSql, FromSqlError, FromSqlResult, ValueRef,
 };
 
 /// 日程分类（日历），例如“我的日程”“中国节假日”
 #[derive(Debug, Clone)]
+#[warn(unused)]
 pub struct Category {
     pub id: i64,
     pub name: String,

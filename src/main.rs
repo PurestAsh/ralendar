@@ -8,19 +8,14 @@ use gpui_kit::{
 use gpui_kit::{application, assets, init, open_window};
 
 use crate::backend::Backend;
-use crate::dialog::new_event;
 use crate::state::State;
 use crate::ui::ui;
-use test::test;
 mod backend;
 mod date_view;
 mod dialog;
-mod ext;
-mod icon;
 mod side_bar;
 mod state;
 mod style;
-mod test;
 mod title_bar;
 mod ui;
 impl Render for State {

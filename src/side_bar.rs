@@ -1,20 +1,12 @@
 use gpui_kit::{
-    Context, InteractiveElement, IntoElement, Length, ParentElement,
-    Styled,
+    Context, IntoElement, ParentElement, Styled,
     assets::IconName,
     base::h_flex,
-    component::{
-        ActiveTheme, Icon, Side,
-        button::{Button, ButtonVariants},
-        calendar::Calendar,
-        sidebar::*,
-    },
+    component::{Icon, calendar::Calendar, sidebar::*},
     div,
     prelude::FluentBuilder,
     px, relative, rems,
 };
-
-use gpui_kit as gpui;
 
 use crate::state::State;
 

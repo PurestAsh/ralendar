@@ -1,19 +1,15 @@
-use chrono::{Datelike, Duration, Local, NaiveDate};
+use chrono::{Datelike, Duration, NaiveDate};
 
 use gpui_kit::{
     Context, Hsla, InteractiveElement, IntoElement, ParentElement,
     Styled, Window,
     base::{StyledExt, h_flex, v_flex},
-    component::{
-        ActiveTheme, IconName, Theme, WindowExt,
-        button::{Button, ButtonVariants},
-    },
+    component::{ActiveTheme, Theme},
     div, px, rgb,
 };
 
 use crate::{
     backend::{Backend, Cal, Event},
-    dialog::new_event,
     state::State,
 };
 
@@ -259,7 +255,7 @@ pub fn month_view(
 fn detail(
     state: &mut State,
     cx: &Context<State>,
-    window: &mut Window,
+    _: &mut Window,
 ) -> impl IntoElement {
     let backend = cx.global::<Backend>();
 
