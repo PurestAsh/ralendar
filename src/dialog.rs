@@ -1,24 +1,28 @@
 use gpui_kit::{
     App, AppContext, Context, Entity, IntoElement, ParentElement,
-    Render, Styled, Window,
+    Render, Styled, Subscription, Window,
     base::{
-        ElementExt, IndexPath, TimePrecision, h_flex,
+        ColorPickerState, ElementExt, IndexPath, TimePrecision,
+        h_flex,
         input::{InputState, TextareaState},
         v_flex,
     },
     component::{
-        WindowExt,
+        Sizable, WindowExt,
         button::{Button, ButtonVariants},
+        color_picker::{ColorPicker, ColorSelect},
         date_picker::{DatePicker, DatePickerState},
+        form::field,
         input::{Input, Textarea},
         select::{Select, SelectState},
         switch::Switch,
     },
     div,
     prelude::FluentBuilder,
+    px, rgb,
 };
 
-use crate::backend::Backend;
+use crate::backend::{Backend, Category};
 
 pub fn new_event(window: &mut Window, cx: &mut App) {
     let new_event_panel = cx.new(|cx| NewEventPanel::new(cx, window));
@@ -86,6 +90,8 @@ struct NewEventPanel {
     start_time: Entity<DatePickerState>,
     //结束时间
     end_time: Entity<DatePickerState>,
+    //颜色数据
+    color_state: Entity<ColorPickerState>,
     //详细描述
     desc: Entity<TextareaState>,
 }
@@ -93,17 +99,27 @@ struct NewEventPanel {
 impl NewEventPanel {
     fn new(cx: &mut Context<Self>, window: &mut Window) -> Self {
         let categeries = cx.global::<Backend>();
-        let cats = categeries.get_cats_name();
+        let cats = categeries.get_categories();
+        let cats_name = cats
+            .iter()
+            .map(|c| c.name.clone())
+            .collect::<Vec<String>>();
+        let default_color = cats.get(0).unwrap().color;
+        let calendar = cx.new(|cx| {
+            SelectState::new(
+                cats_name,
+                Some(IndexPath::default()), // Select first item
+                window,
+                cx,
+            )
+        });
 
+        let color_state = cx.new(|cx| {
+            ColorPickerState::new(window, cx)
+                .default_value(rgb(default_color))
+        });
         Self {
-            calendar: cx.new(|cx| {
-                SelectState::new(
-                    cats,
-                    Some(IndexPath::default()), // Select first item
-                    window,
-                    cx,
-                )
-            }),
+            calendar,
             title: cx.new(|cx| {
                 InputState::new(window, cx).placeholder("标题")
             }),
@@ -116,11 +132,12 @@ impl NewEventPanel {
                 DatePickerState::new(window, cx)
                     .time_precision(TimePrecision::Minute)
             }),
+            color_state,
             desc: cx.new(|cx| {
                 TextareaState::new(window, cx)
                     .placeholder("详细描述")
                     .rows(4)
-            }),
+            })
         }
     }
 
@@ -136,7 +153,13 @@ impl NewEventPanel {
         let start_time = self.start_time.read(app).date_time();
         let description =
             self.desc.read(app).content().text().to_string();
-        println!("desc:{}", description);
+        let color = self
+            .color_state
+            .read(app)
+            .value()
+            .unwrap()
+            .to_rgb()
+            .into();
         db.save_event(
             calendar_index as u32,
             calendar_name,
@@ -149,6 +172,7 @@ impl NewEventPanel {
                 self.end_time.read(app).date_time()
             },
             description,
+            color,
         );
     }
 }
@@ -168,6 +192,13 @@ impl Render for NewEventPanel {
                     .gap_5()
                     .child("所属日历")
                     .child(Select::new(&self.calendar)),
+            )
+            .child(
+                h_flex()
+                    .justify_between()
+                    .gap_5()
+                    .child("选择颜色")
+                    .child(ColorSelect::new(&self.color_state)),
             )
             .child(Input::new(&self.title))
             .child(

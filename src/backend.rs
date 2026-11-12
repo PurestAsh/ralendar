@@ -9,7 +9,6 @@ pub use model::Category;
 pub use model::Event;
 pub use sqllite::CalendarDb;
 
-
 pub struct Backend {
     db: CalendarDb,
 }
@@ -63,12 +62,10 @@ impl Backend {
         start_time: DateTime,
         end_time: DateTime,
         description: String,
+        color: u32,
     ) {
-        println!("可开始");
         if let DateTime::Single(Some(start_t)) = start_time {
-            println!("进入");
             if let DateTime::Single(Some(end_t)) = end_time {
-                println!("净土2");
                 let start_date = start_t.date();
                 let end_date = end_t.date();
                 let start_time;
@@ -90,7 +87,7 @@ impl Backend {
                         start_time,
                         end_date,
                         end_time,
-                        0x42accf,
+                        color,
                         1,
                         if description.is_empty() {
                             None
