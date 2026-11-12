@@ -61,7 +61,7 @@ fn time_select(
     placeholder: &str,
 ) -> impl IntoElement {
     let previous_rem_size = window.rem_size();
-    window.set_rem_size(px(16.));
+    // window.set_rem_size(px(16.));
 
     div()
         .size_full()
