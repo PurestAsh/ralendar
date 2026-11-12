@@ -5,6 +5,8 @@ use gpui_kit::{
     component::carousel::{CarouselEvent, CarouselState},
 };
 
+use crate::backend::{Backend, Category};
+
 pub struct State {
     //按钮控制
     date_switch: [bool; 3],
@@ -25,9 +27,8 @@ pub struct State {
     //今天，不变
     today: NaiveDate,
 
-    //Schedule  日程开关
-    schedule_toggle: [bool; 3],
-
+    //所有日程
+    cats: Vec<Category>,
     //侧边栏开关
     sidebar_switch: bool,
 }
@@ -52,7 +53,7 @@ impl State {
             month_view_index: 0,
             select_date: Local::now().date_naive(),
             today: Local::now().date_naive(),
-            schedule_toggle: [true, true, true],
+            cats: cx.global::<Backend>().get_categories(),
             sidebar_switch: false,
         }
     }
@@ -123,27 +124,19 @@ impl State {
         self.select_date = *date;
     }
 
-    pub fn my_schedule(&self) -> bool {
-        self.schedule_toggle[0]
+    pub fn schedules(&self) -> &Vec<Category> {
+        &self.cats
     }
 
-    pub fn cn_schedule(&self) -> bool {
-        self.schedule_toggle[1]
+    pub fn is_enabled_schedule(&self, cat_id: i64) -> bool {
+        self.cats.iter().any(|cat| cat.id == cat_id && cat.enabled)
     }
 
-    pub fn en_schedule(&self) -> bool {
-        self.schedule_toggle[2]
-    }
-
-    pub fn toggle_schedule(&mut self, pos: u8) {
-        match pos {
-            0 => self.schedule_toggle[0] = !self.schedule_toggle[0],
-            1 => self.schedule_toggle[1] = !self.schedule_toggle[1],
-            2 => self.schedule_toggle[2] = !self.schedule_toggle[2],
-            _ => todo!(),
-        }
-
-        println!("{:?}", self.schedule_toggle);
+    pub fn toggle_schedule(&mut self, pos: usize) {
+        self.cats.get_mut(pos).map(|cat| {
+            cat.enabled = !cat.enabled;
+            cat
+        });
     }
 
     pub fn toggle_sidebar(&mut self) {

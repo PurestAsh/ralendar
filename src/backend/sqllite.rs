@@ -1,7 +1,7 @@
 use chrono::{NaiveDate, NaiveTime};
 use rusqlite::{Connection, OptionalExtension, Result, params};
 
-use crate::backend::model::Event;
+use crate::backend::model::{Category, Event};
 
 const DB_PATH: &str = "./ralendar.db";
 
@@ -78,6 +78,30 @@ impl CalendarDb {
         let mut res = Vec::new();
         while let Some(row) = rows.next().unwrap() {
             res.push(row.get(0).unwrap())
+        }
+        res
+    }
+
+    pub fn get_categories(&self) -> Vec<Category> {
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT 
+                        id,
+                        name,
+                        color,
+                        enabled,
+                        sort_order
+                 FROM categories
+                 order by sort_order",
+            )
+            .unwrap();
+
+        let mut rows = stmt.query(params![]).unwrap();
+
+        let mut res = Vec::new();
+        while let Some(row) = rows.next().unwrap() {
+            res.push(map_category(&row).unwrap());
         }
         res
     }
@@ -253,12 +277,12 @@ fn map_event(row: &rusqlite::Row<'_>) -> Result<Event> {
     })
 }
 
-// fn map_category(row: &rusqlite::Row<'_>) -> Result<Category> {
-//     Ok(Category {
-//         id: row.get_unwrap(0),
-//         name: row.get_unwrap(1),
-//         color: row.get_unwrap(2),
-//         enabled: row.get_unwrap(3),
-//         sort_order: row.get_unwrap(4),
-//     })
-// }
+fn map_category(row: &rusqlite::Row<'_>) -> Result<Category> {
+    Ok(Category {
+        id: row.get_unwrap(0),
+        name: row.get_unwrap(1),
+        color: row.get_unwrap(2),
+        enabled: row.get_unwrap(3),
+        sort_order: row.get_unwrap(4),
+    })
+}

@@ -16,7 +16,6 @@ use gpui_kit::{
     },
     div,
     prelude::FluentBuilder,
-    px,
 };
 
 use crate::backend::Backend;

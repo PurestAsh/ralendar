@@ -5,8 +5,10 @@ use chrono::NaiveDate;
 use gpui_kit::Global;
 use gpui_kit::component::date_picker::DateTime;
 pub use model::Cal;
+pub use model::Category;
 pub use model::Event;
 pub use sqllite::CalendarDb;
+
 
 pub struct Backend {
     db: CalendarDb,
@@ -24,6 +26,10 @@ impl Backend {
     ///获取所有日历
     pub fn get_cats_name(&self) -> Vec<String> {
         self.db.get_cats_name()
+    }
+
+    pub fn get_categories(&self) -> Vec<Category> {
+        self.db.get_categories()
     }
 
     /// 根据日期和日程 ID 查询日程，转发到数据库层

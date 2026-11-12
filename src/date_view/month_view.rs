@@ -169,35 +169,41 @@ fn day_cell(
     if is_today {
         number = number.bg(cx.theme().primary);
     }
-
     let events = backend.get_event(date);
+    let events_filtered = events
+        .iter()
+        .filter(|event| {
+            let cat_id = event.category_id;
+            state.is_enabled_schedule(cat_id)
+        })
+        .collect::<Vec<&Event>>();
 
     let mut top = h_flex()
         .w_full()
         .justify_between()
         .items_center()
         .child(number);
-    if events.iter().any(|event| event.cal == Cal::Rest) {
+    if events_filtered.iter().any(|event| event.cal == Cal::Rest) {
         top = top.child(badge("休", cx.theme().danger));
-    } else if events.iter().any(|s| s.cal == Cal::Work) {
+    } else if events_filtered.iter().any(|s| s.cal == Cal::Work) {
         top = top.child(badge("班", cx.theme().secondary_foreground));
-    } else if events.iter().any(|s| s.cal == Cal::Leave) {
+    } else if events_filtered.iter().any(|s| s.cal == Cal::Leave) {
         top = top.child(badge("假", cx.theme().success));
     }
     cell = cell.child(top);
 
     // 日程条：最多三条，多余收起为 +N
     let mut chips = v_flex().w_full().gap(px(3.)).min_w(px(0.));
-    for event in events.iter().take(3) {
+    for event in events_filtered.iter().take(3) {
         chips = chips.child(chip(&event, cx.theme()));
     }
-    if events.len() > 3 {
+    if events_filtered.len() > 3 {
         chips = chips.child(
             div()
                 .pl(px(2.))
                 .text_xs()
                 .text_color(cx.theme().muted_foreground)
-                .child(format!("+{} 项", events.len() - 3)),
+                .child(format!("+{} 项", events_filtered.len() - 3)),
         );
     }
     cell = cell.child(chips);

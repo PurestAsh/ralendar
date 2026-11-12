@@ -1,8 +1,14 @@
 use gpui_kit::{
     Context, IntoElement, ParentElement, Styled,
-    assets::IconName,
     base::h_flex,
-    component::{Icon, calendar::Calendar, sidebar::*},
+    component::{
+        Icon, IconName,
+        calendar::Calendar,
+        sidebar::{
+            Sidebar, SidebarCollapsible, SidebarFooter, SidebarGroup,
+            SidebarMenu, SidebarMenuItem,
+        },
+    },
     div,
     prelude::FluentBuilder,
     px, relative, rems,
@@ -39,47 +45,24 @@ pub fn sidebar(
                     ),
                 ),
         )
-        .child(
-            SidebarGroup::new("我的日历").child(
-                SidebarMenu::new()
-                    .child(
-                        SidebarMenuItem::new("我的日程")
+        .child(SidebarGroup::new("我的日历").child(
+            SidebarMenu::new().children(
+                state.schedules().iter().enumerate().map(
+                    |(pos, cat)| {
+                        SidebarMenuItem::new(&cat.name)
                             .icon(Icon::empty())
-                            .when(state.my_schedule(), |a| {
+                            .when(cat.enabled, |a| {
                                 a.icon(IconName::Check)
                             })
                             .on_click(cx.listener(
-                                |state, _, _, _| {
-                                    state.toggle_schedule(0);
+                                move |state, _, _, _| {
+                                    state.toggle_schedule(pos);
                                 },
-                            )),
-                    )
-                    .child(
-                        SidebarMenuItem::new("中国节假日")
-                            .icon(Icon::empty())
-                            .when(state.cn_schedule(), |a| {
-                                a.icon(IconName::Check)
-                            })
-                            .on_click(cx.listener(
-                                |state, _, _, _| {
-                                    state.toggle_schedule(1);
-                                },
-                            )),
-                    )
-                    .child(
-                        SidebarMenuItem::new("国际节假日")
-                            .icon(Icon::empty())
-                            .when(state.en_schedule(), |a| {
-                                a.icon(IconName::Check)
-                            })
-                            .on_click(cx.listener(
-                                |state, _, _, _| {
-                                    state.toggle_schedule(2);
-                                },
-                            )),
-                    ),
+                            ))
+                    },
+                ),
             ),
-        )
+        ))
         .footer(
             SidebarFooter::new().justify_between().child(
                 h_flex()
