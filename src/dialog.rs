@@ -14,7 +14,7 @@ use gpui_kit::{
         date_picker::{DatePicker, DatePickerState},
         form::field,
         input::{Input, Textarea},
-        select::{Select, SelectState},
+        select::{Select, SelectEvent, SelectState},
         switch::Switch,
     },
     div,
@@ -94,6 +94,8 @@ struct NewEventPanel {
     color_state: Entity<ColorPickerState>,
     //详细描述
     desc: Entity<TextareaState>,
+    //日历选择变化的订阅
+    _calendar_subscription: Subscription,
 }
 
 impl NewEventPanel {
@@ -118,6 +120,29 @@ impl NewEventPanel {
             ColorPickerState::new(window, cx)
                 .default_value(rgb(default_color))
         });
+
+        //日历切换时，把颜色同步为所选日历（分类）的颜色
+        let _calendar_subscription = cx.subscribe_in(
+            &calendar,
+            window,
+            move |this,
+                  _,
+                  event: &SelectEvent<Vec<String>>,
+                  window,
+                  cx| {
+                let SelectEvent::Confirm(Some(name)) = event else {
+                    return;
+                };
+                let Some(cat) = cats.iter().find(|c| &c.name == name)
+                else {
+                    return;
+                };
+                this.color_state.update(cx, |state, cx| {
+                    state.set_value(rgb(cat.color), window, cx);
+                });
+            },
+        );
+
         Self {
             calendar,
             title: cx.new(|cx| {
@@ -137,7 +162,8 @@ impl NewEventPanel {
                 TextareaState::new(window, cx)
                     .placeholder("详细描述")
                     .rows(4)
-            })
+            }),
+            _calendar_subscription,
         }
     }
 
