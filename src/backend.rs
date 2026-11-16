@@ -88,7 +88,8 @@ impl Backend {
                         end_date,
                         end_time,
                         color,
-                        1,
+                        all_day,
+                        Cal::None,
                         if description.is_empty() {
                             None
                         } else {

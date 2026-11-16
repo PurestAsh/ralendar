@@ -1,7 +1,7 @@
 use chrono::{NaiveDate, NaiveTime};
 use rusqlite::{Connection, OptionalExtension, Result, params};
 
-use crate::backend::model::{Category, Event};
+use crate::backend::{Cal, model::{Category, Event}};
 
 const DB_PATH: &str = "./ralendar.db";
 
@@ -119,7 +119,8 @@ impl CalendarDb {
         end_date: NaiveDate,
         end_time: Option<NaiveTime>,
         color: u32,
-        cal: u8,
+        all_day:bool,
+        cal: Cal,
         description: Option<&str>,
     ) -> Result<i64> {
         self.conn.execute(
@@ -145,6 +146,7 @@ impl CalendarDb {
                 end_date,
                 end_time,
                 color,
+                all_day,
                 cal,
                 description
             ],

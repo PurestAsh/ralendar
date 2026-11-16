@@ -1,7 +1,7 @@
 use chrono::{NaiveDate, NaiveTime};
-use rusqlite::types::{
+use rusqlite::{ToSql, types::{
     FromSql, FromSqlError, FromSqlResult, ValueRef,
-};
+}};
 
 /// 日程分类（日历），例如“我的日程”“中国节假日”
 #[derive(Debug, Clone)]
@@ -71,5 +71,17 @@ impl FromSql for Cal {
         } else {
             Err(FromSqlError::InvalidType)
         }
+    }
+}
+
+impl ToSql for Cal {
+    fn to_sql(&self) -> rusqlite::Result<rusqlite::types::ToSqlOutput<'_>> {
+        let value = match self {
+            Cal::Rest => 0,
+            Cal::Work => 1,
+            Cal::Leave => 2,
+            Cal::None => -1,
+        };
+        Ok(rusqlite::types::ToSqlOutput::from(value))
     }
 }
