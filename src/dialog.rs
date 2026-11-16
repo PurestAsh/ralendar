@@ -188,8 +188,8 @@ impl NewEventPanel {
             .into();
         db.save_event(
             calendar_index as u32,
-            calendar_name,
-            title,
+            &calendar_name,
+            &title,
             self.all_day,
             start_time,
             if self.all_day {
@@ -197,7 +197,7 @@ impl NewEventPanel {
             } else {
                 self.end_time.read(app).date_time()
             },
-            description,
+            &description,
             color,
         );
     }

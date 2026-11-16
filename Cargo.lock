@@ -4942,6 +4942,8 @@ dependencies = [
  "chrono",
  "gpui-kit",
  "rusqlite",
+ "serde",
+ "serde_json",
  "xdg",
 ]
 

@@ -2,6 +2,7 @@ mod model;
 mod sqllite;
 
 use chrono::NaiveDate;
+use chrono::NaiveTime;
 use gpui_kit::Global;
 use gpui_kit::component::date_picker::DateTime;
 pub use model::Cal;
@@ -56,12 +57,12 @@ impl Backend {
     pub fn save_event(
         &self,
         calendar_index: u32,
-        calendar: String,
-        title: String,
+        calendar: &str,
+        title: &str,
         all_day: bool,
         start_time: DateTime,
         end_time: DateTime,
-        description: String,
+        description: &str,
         color: u32,
     ) {
         if let DateTime::Single(Some(start_t)) = start_time {
@@ -82,7 +83,7 @@ impl Backend {
                     .add_event(
                         calendar_index,
                         calendar,
-                        &title,
+                        title,
                         start_date,
                         start_time,
                         end_date,
@@ -99,5 +100,37 @@ impl Backend {
                     .unwrap();
             }
         }
+    }
+
+    ///用来给数据导入工具使用的。
+    pub fn add_event(
+        &self,
+        category_id: u32,
+        category_name: &str,
+        title: &str,
+        start_date: NaiveDate,
+        start_time: Option<NaiveTime>,
+        end_date: NaiveDate,
+        end_time: Option<NaiveTime>,
+        color: u32,
+        all_day: bool,
+        cal: Cal,
+        description: Option<&str>,
+    ) {
+        self.db
+            .add_event(
+                category_id,
+                category_name,
+                title,
+                start_date,
+                start_time,
+                end_date,
+                end_time,
+                color,
+                all_day,
+                cal,
+                description,
+            )
+            .unwrap();
     }
 }

@@ -112,7 +112,7 @@ impl CalendarDb {
     pub fn add_event(
         &self,
         category_id: u32,
-        category_name: String,
+        category_name: &str,
         title: &str,
         start_date: NaiveDate,
         start_time: Option<NaiveTime>,
