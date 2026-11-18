@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Ralendar
+Comment=Native GPUI chinese calendar
+Exec=ralendar
+Icon=ralendar
+Terminal=false
+Categories=Office;Calendar;
+Keywords=Calendar;Schedule;
+StartupNotify=true

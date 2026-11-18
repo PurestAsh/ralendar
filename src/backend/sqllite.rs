@@ -1,10 +1,15 @@
+use std::path::{Path, PathBuf};
+
 use chrono::{NaiveDate, NaiveTime};
 use rusqlite::{Connection, OptionalExtension, Result, params};
 
-use crate::backend::{Cal, model::{Category, Event}};
+use crate::backend::{
+    Cal,
+    model::{Category, Event},
+};
 
-const DB_PATH: &str = "./ralendar.db";
-
+const DEV_DB_PATH: &str = "./ralendar.db";
+const ENV: &str = "RALENDAR_ENV";
 pub struct CalendarDb {
     conn: Connection,
 }
@@ -12,7 +17,16 @@ pub struct CalendarDb {
 impl CalendarDb {
     /// 打开数据库；首次运行时自动创建目录和数据库文件
     pub fn new() -> Self {
-        let conn = Connection::open(DB_PATH).unwrap();
+        let db_path = if std::env::var(ENV).is_ok() {
+            PathBuf::new().join(DEV_DB_PATH)
+        } else {
+            let xdg = xdg::BaseDirectories::new();
+            let data_home =
+                xdg.get_data_home().expect("not found &HOME env");
+            data_home.join("ralendar/ralendar.db")
+        };
+
+        let conn = Connection::open(db_path).unwrap();
         // 打开外键约束（SQLite 默认关闭）
         conn.pragma_update(None, "foreign_keys", "ON").unwrap();
 
@@ -119,7 +133,7 @@ impl CalendarDb {
         end_date: NaiveDate,
         end_time: Option<NaiveTime>,
         color: u32,
-        all_day:bool,
+        all_day: bool,
         cal: Cal,
         description: Option<&str>,
     ) -> Result<i64> {

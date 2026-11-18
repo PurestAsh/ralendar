@@ -1,0 +1,29 @@
+# Maintainer: Ian Swope <ian@smallswope.com>
+pkgname=ralendar
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Native GPUI chinese calendar for Linux"
+arch=('x86_64')
+url='https://github.com/PurestAsh/ralendar.git'
+license=('MIT')
+# depends=('rust' 'libadwaita' 'xdg-utils')
+makedepends=('cargo' 'pkgconf')
+# optdepends=('gnome-keyring: store Google, iCloud, and CalDAV credentials')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
+# Release checklist: replace SKIP with the SHA-256 of the immutable tagged
+# archive before publishing this PKGBUILD to the AUR.
+# sha256sums=('bd45fc357a2457268d720ea10b53dc84162dde7f55d98f15b16aead5cb4e1852')
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  cargo build --release --locked
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  install -Dm755 target/release/${pkgname} "${pkgdir}/usr/bin/${pkgname}"
+  install -Dm644 ${pkgname}.desktop \
+    "${pkgdir}/usr/share/applications/${pkgname}.desktop"
+  install -Dm644 ${pkgname}.svg \
+    "${pkgdir}/usr/share/icons/hicolor/scalable/apps/${pkgname}.svg"
+}

@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.runnables.extraEnv": {
+        "RALENDAR_ENV": "dev",
+    }
+}
