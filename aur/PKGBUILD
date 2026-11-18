@@ -1,18 +1,18 @@
 # Maintainer: Ian Swope <ian@smallswope.com>
 pkgname=ralendar
-pkgver=0.1.0
+pkgver=0.1.1
 pkgrel=1
 pkgdesc="Native GPUI chinese calendar for Linux"
 arch=('x86_64')
 url='https://github.com/PurestAsh/ralendar'
 license=('MIT')
 # depends=('sqlite')  'pkgconf'
-makedepends=('cargo' 'fontconfig' 'sqlite' 'libxcb' 'libxkbcommon' 'libxkbcommon-x11')
+makedepends=('cargo' 'fontconfig' 'sqlite' 'libxcb' 'libxkbcommon' 'libxkbcommon-x11' 'wayland')
 # optdepends=('gnome-keyring: store Google, iCloud, and CalDAV credentials')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/${pkgver}.tar.gz")
 # Release checklist: replace SKIP with the SHA-256 of the immutable tagged
 # archive before publishing this PKGBUILD to the AUR.
-sha256sums=('14c01eccbaf410f104b92a4f831451b5c0d30fdfc23d7322e94b17489b4bd8d5')
+sha256sums=('71d9ba9d1a78e4f54f68597762cdd9bff3fbf65426d8fdf5cde62c7f29abdb12')
 build() {
   cd "${pkgname}-${pkgver}"
   cargo build --release --locked --bin ralendar
