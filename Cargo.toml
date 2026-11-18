@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 chrono = "0.4.45"
-gpui-kit = { git= "https://gitee.com/threewaterzxm/gpui-kit.git"}
+gpui-kit = { git= "https://github.com/PurestAsh/gpui-kit.git"}
 rusqlite = { version = "0.40.2", features = ["chrono"] }
 serde = { version = "1.0.229" }
 serde_json = "1.0.154"
