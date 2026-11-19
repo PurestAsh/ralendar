@@ -9,6 +9,7 @@ use crate::backend::{
 };
 
 const DEV_DB_PATH: &str = "./ralendar.db";
+const PROD_DB_PATH: &str = "/usr/share/ralendar/ralendar.db";
 const ENV: &str = "RALENDAR_ENV";
 pub struct CalendarDb {
     conn: Connection,
@@ -18,12 +19,9 @@ impl CalendarDb {
     /// 打开数据库；首次运行时自动创建目录和数据库文件
     pub fn new() -> Self {
         let db_path = if std::env::var(ENV).is_ok() {
-            PathBuf::new().join(DEV_DB_PATH)
+            DEV_DB_PATH
         } else {
-            let xdg = xdg::BaseDirectories::new();
-            let data_home =
-                xdg.get_data_home().expect("not found &HOME env");
-            data_home.join("ralendar/ralendar.db")
+            PROD_DB_PATH
         };
 
         let conn = Connection::open(db_path).unwrap();

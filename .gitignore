@@ -33,3 +33,6 @@ target
 #/target
 aur/*.log
 aur/*.tar.gz
+aur/*.pkg.tar.zst
+aur/pkg/
+aur/src/

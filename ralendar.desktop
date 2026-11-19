@@ -3,6 +3,7 @@ Type=Application
 Name=Ralendar
 Comment=Native GPUI chinese calendar
 Exec=ralendar
+Path=/usr/share/ralendar
 Icon=ralendar
 Terminal=false
 Categories=Office;Calendar;

@@ -1,28 +1,49 @@
-# Maintainer: Ian Swope <ian@smallswope.com>
+# Maintainer: Three Water <threewaterzxm@gmail.com>
 pkgname=ralendar
 pkgver=0.1.1
 pkgrel=1
-pkgdesc="Native GPUI chinese calendar for Linux"
+pkgdesc='Native GPUI Chinese calendar for Linux'
 arch=('x86_64')
+# disable lto. the wayland-backend use gcc,but rust linker use llvm
+options=('!lto')
 url='https://github.com/PurestAsh/ralendar'
 license=('MIT')
-# depends=('sqlite')  'pkgconf'
-makedepends=('cargo' 'fontconfig' 'sqlite' 'libxcb' 'libxkbcommon' 'libxkbcommon-x11' 'wayland')
-# optdepends=('gnome-keyring: store Google, iCloud, and CalDAV credentials')
+depends=(
+  # 'fontconfig'
+  # 'gcc-libs'
+  # 'glibc'
+  # 'libglvnd'
+  # 'libxcb'
+  # 'libxkbcommon'
+  # 'libxkbcommon-x11'
+  # 'sqlite'
+  # 'vulkan-icd-loader'
+  # 'wayland'
+)
+makedepends=('cargo')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/${pkgver}.tar.gz")
-# Release checklist: replace SKIP with the SHA-256 of the immutable tagged
-# archive before publishing this PKGBUILD to the AUR.
 sha256sums=('71d9ba9d1a78e4f54f68597762cdd9bff3fbf65426d8fdf5cde62c7f29abdb12')
+
 build() {
   cd "${pkgname}-${pkgver}"
-  cargo build --release --locked --bin ralendar
+  cargo build --release --locked --bin "${pkgname}"
 }
 
 package() {
   cd "${pkgname}-${pkgver}"
-  install -Dm755 target/release/${pkgname} "${pkgdir}/usr/bin/${pkgname}"
-  install -Dm644 ${pkgname}.desktop \
+
+  install -Dm755 "target/release/${pkgname}" \
+    "${pkgdir}/usr/bin/${pkgname}"
+  
+  install -Dm666 "${pkgname}.db" \
+    "${pkgdir}/usr/share/${pkgname}/${pkgname}.db"
+  
+  install -Dm644 "${pkgname}.desktop" \
     "${pkgdir}/usr/share/applications/${pkgname}.desktop"
-  install -Dm644 ${pkgname}.svg \
+  
+  install -Dm644 "${pkgname}.svg" \
     "${pkgdir}/usr/share/icons/hicolor/scalable/apps/${pkgname}.svg"
+  
+  install -Dm644 theme/ayu.json \
+    "${pkgdir}/usr/share/${pkgname}/theme/ayu.json"
 }
