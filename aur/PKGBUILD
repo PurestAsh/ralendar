@@ -1,15 +1,17 @@
 # Maintainer: Three Water <threewaterzxm@gmail.com>
 pkgname=ralendar
-pkgver=0.1.2
+pkgver=0.1.0
 pkgrel=1
 pkgdesc='Native GPUI Chinese calendar for Linux'
 arch=('x86_64')
 # disable lto. the wayland-backend use gcc,but rust linker use llvm
-options=('!lto')
+options=('!lto' '!strip' '!debug')
 url='https://github.com/PurestAsh/ralendar'
 license=('MIT')
 depends=(
 'noto-fonts'
+'sqlite'
+'wayland'
 )
 makedepends=(
   'cargo'
@@ -19,7 +21,7 @@ makedepends=(
   'libxkbcommon-x11'
 )
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/${pkgver}.tar.gz")
-sha256sums=('e372e67ddd6240d48186661d73a6fb01801d4c4c46632cdb910508b9e19ad1f2')
+sha256sums=('f6305589ba3dadfa371724b4f4a09035653404f55b61eefcdb2ad16c366cdba1')
 
 build() {
   cd "${pkgname}-${pkgver}"
@@ -31,6 +33,8 @@ package() {
 
   install -Dm755 "target/release/${pkgname}" \
     "${pkgdir}/usr/bin/${pkgname}"
+  
+  install -dm777 "${pkgdir}/usr/share/${pkgname}"
   
   install -Dm666 "${pkgname}.db" \
     "${pkgdir}/usr/share/${pkgname}/${pkgname}.db"
